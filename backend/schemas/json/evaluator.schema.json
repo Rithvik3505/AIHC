@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Evaluator Registry",
+  "type": "object",
+  "required": ["registry_name", "version", "evaluators"],
+  "properties": {
+    "registry_name": {"type": "string"},
+    "version": {"type": "string"},
+    "evaluators": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "evaluator_type", "scoring_method", "supported_practices", "supported_ai_systems", "deterministic", "llm_or_statistical"]
+      }
+    }
+  }
+}

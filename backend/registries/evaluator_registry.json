@@ -1,0 +1,106 @@
+{
+  "registry_name": "evaluator_registry",
+  "version": "0.3.0",
+  "evaluators": [
+    {
+      "id": "fairlearn_rule_engine_v1",
+      "name": "Fairlearn + Custom Rule Engine",
+      "evaluator_type": "fairness",
+      "scoring_method": "counterfactual flips, parity gaps, and proxy sensitivity",
+      "supported_practices": ["Bias mitigation"],
+      "supported_ai_systems": ["Credit scoring AI", "Loan approval AI", "Fraud detection AI", "KYC verification AI", "Loan default prediction AI", "Loan underwriting AI", "OCR document extraction", "Customer support LLM"],
+      "deterministic": true,
+      "llm_or_statistical": "statistical"
+    },
+    {
+      "id": "fairlearn_v1",
+      "name": "Fairlearn",
+      "evaluator_type": "fairness",
+      "scoring_method": "segment parity, error-rate disparity, and outcome consistency",
+      "supported_practices": ["Fairness of model output"],
+      "supported_ai_systems": ["Credit scoring AI", "Loan approval AI", "Fraud detection AI", "KYC verification AI", "Loan default prediction AI", "Loan underwriting AI", "OCR document extraction", "Customer support LLM"],
+      "deterministic": true,
+      "llm_or_statistical": "statistical"
+    },
+    {
+      "id": "custom_rule_engine_v1",
+      "name": "Custom Rule Engine",
+      "evaluator_type": "rules_and_rubrics",
+      "scoring_method": "schema-constrained rule and rubric scoring",
+      "supported_practices": ["Harmful model output", "Model validation", "Model accuracy", "Model transparency", "Human-in-the-loop", "Documentation & compliance checklists", "Safety of model output", "Stress testing"],
+      "supported_ai_systems": ["Credit scoring AI", "Loan approval AI", "Fraud detection AI", "KYC verification AI", "Loan default prediction AI", "Loan underwriting AI", "OCR document extraction", "Customer support LLM"],
+      "deterministic": true,
+      "llm_or_statistical": "llm_ready_rule_based_mvp"
+    },
+    {
+      "id": "great_expectations_rule_engine_v1",
+      "name": "Great Expectations + Custom Rule Engine",
+      "evaluator_type": "data_quality_privacy",
+      "scoring_method": "PII scans, schema checks, and redaction coverage",
+      "supported_practices": ["Data privacy / PII protection"],
+      "supported_ai_systems": ["Credit scoring AI", "Loan approval AI", "Fraud detection AI", "KYC verification AI", "Loan default prediction AI", "Loan underwriting AI", "OCR document extraction", "Customer support LLM"],
+      "deterministic": true,
+      "llm_or_statistical": "statistical"
+    },
+    {
+      "id": "shap_v1",
+      "name": "SHAP",
+      "evaluator_type": "explainability",
+      "scoring_method": "driver plausibility, proxy influence, and local explanation stability",
+      "supported_practices": ["Feature importance analysis"],
+      "supported_ai_systems": ["Credit scoring AI", "Loan approval AI", "Fraud detection AI", "KYC verification AI", "Loan default prediction AI", "Loan underwriting AI", "OCR document extraction", "Customer support LLM"],
+      "deterministic": true,
+      "llm_or_statistical": "statistical"
+    },
+    {
+      "id": "lime_rule_engine_v1",
+      "name": "LIME + Custom Rule Engine",
+      "evaluator_type": "explainability",
+      "scoring_method": "interpretable challenger agreement and unexplained variance",
+      "supported_practices": ["Glass box vs black box testing"],
+      "supported_ai_systems": ["Credit scoring AI", "Loan approval AI", "Fraud detection AI", "KYC verification AI", "Loan default prediction AI", "Loan underwriting AI", "OCR document extraction", "Customer support LLM"],
+      "deterministic": true,
+      "llm_or_statistical": "statistical"
+    },
+    {
+      "id": "dice_rule_engine_v1",
+      "name": "DiCE + Custom Rule Engine",
+      "evaluator_type": "counterfactual_explainability",
+      "scoring_method": "actionability, stability, and proxy leakage",
+      "supported_practices": ["Counterfactual explanations"],
+      "supported_ai_systems": ["Credit scoring AI", "Loan approval AI", "Fraud detection AI", "KYC verification AI", "Loan default prediction AI", "Loan underwriting AI", "OCR document extraction", "Customer support LLM"],
+      "deterministic": true,
+      "llm_or_statistical": "statistical"
+    },
+    {
+      "id": "statistical_drift_engine_v1",
+      "name": "Statistical Drift Engine",
+      "evaluator_type": "statistical_diagnostics",
+      "scoring_method": "residual drift, correlation risk, clustering, and time-series stability",
+      "supported_practices": ["Residual analysis", "Correlation analysis", "Clustering / anomaly analysis", "Time-series diagnostics"],
+      "supported_ai_systems": ["Credit scoring AI", "Loan approval AI", "Fraud detection AI", "KYC verification AI", "Loan default prediction AI", "Loan underwriting AI", "OCR document extraction", "Customer support LLM"],
+      "deterministic": true,
+      "llm_or_statistical": "statistical"
+    },
+    {
+      "id": "great_expectations_drift_engine_v1",
+      "name": "Great Expectations + Statistical Drift Engine",
+      "evaluator_type": "outlier_diagnostics",
+      "scoring_method": "field constraints, anomaly indicators, and high-influence record ranking",
+      "supported_practices": ["Outlier diagnostics"],
+      "supported_ai_systems": ["Fraud detection AI", "KYC verification AI", "OCR document extraction", "Loan default prediction AI"],
+      "deterministic": true,
+      "llm_or_statistical": "statistical"
+    },
+    {
+      "id": "art_rule_engine_v1",
+      "name": "ART + Custom Rule Engine",
+      "evaluator_type": "adversarial_robustness",
+      "scoring_method": "evasion success, boundary instability, and attack-chain control gaps",
+      "supported_practices": ["Adversarial testing", "AI red teaming"],
+      "supported_ai_systems": ["Fraud detection AI", "KYC verification AI", "Customer support LLM", "OCR document extraction"],
+      "deterministic": true,
+      "llm_or_statistical": "statistical"
+    }
+  ]
+}

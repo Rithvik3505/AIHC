@@ -1,0 +1,522 @@
+{
+  "replay_id": "fraud_adversarial_testing-20260627183105-4e5ea382",
+  "workflow_id": "fraud_adversarial_testing",
+  "created_at": "2026-06-27T18:31:05.992425+00:00",
+  "workflow": {
+    "id": "fraud_adversarial_testing",
+    "name": "Fraud Detection AI - Adversarial Testing",
+    "ai_system": "Fraud detection AI",
+    "pillar": "Risk",
+    "supporting_practice": "Adversarial testing",
+    "use_case": "Adversarial testing for fraud scoring, alerting, and suspicious behavior detection",
+    "orchestration_logic": [
+      "load synthetic fraud attacks",
+      "run robustness evaluator",
+      "score benchmark",
+      "write replay",
+      "generate report"
+    ],
+    "supported_uploads": [
+      "csv",
+      "json"
+    ],
+    "frontend_routing": "/evaluate?workflow=fraud_adversarial_testing",
+    "report_template": "founder_security_diagnostic"
+  },
+  "inputs": {
+    "records": [
+      {
+        "transaction_id": "atk-1",
+        "amount": 4999,
+        "hour": 22,
+        "merchant_category": "wallet",
+        "device_age_days": 12,
+        "attack_type": "night_velocity",
+        "prediction": 0.4,
+        "baseline_prediction": 0.546
+      },
+      {
+        "transaction_id": "atk-2",
+        "amount": 10001,
+        "hour": 23,
+        "merchant_category": "wallet",
+        "device_age_days": 12,
+        "attack_type": "merchant_mimicry",
+        "prediction": 0.562,
+        "baseline_prediction": 0.73
+      },
+      {
+        "transaction_id": "atk-3",
+        "amount": 9999,
+        "hour": 1,
+        "merchant_category": "wallet",
+        "device_age_days": 12,
+        "attack_type": "amount_fragmentation",
+        "prediction": 0.092,
+        "baseline_prediction": 0.357
+      },
+      {
+        "transaction_id": "atk-4",
+        "amount": 9999,
+        "hour": 22,
+        "merchant_category": "electronics",
+        "device_age_days": 7,
+        "attack_type": "night_velocity",
+        "prediction": 0.574,
+        "baseline_prediction": 0.783
+      },
+      {
+        "transaction_id": "atk-5",
+        "amount": 999,
+        "hour": 3,
+        "merchant_category": "wallet",
+        "device_age_days": 2,
+        "attack_type": "amount_fragmentation",
+        "prediction": 0.625,
+        "baseline_prediction": 0.8
+      },
+      {
+        "transaction_id": "atk-6",
+        "amount": 9999,
+        "hour": 2,
+        "merchant_category": "electronics",
+        "device_age_days": 11,
+        "attack_type": "amount_fragmentation",
+        "prediction": 0.145,
+        "baseline_prediction": 0.409
+      },
+      {
+        "transaction_id": "atk-7",
+        "amount": 999,
+        "hour": 22,
+        "merchant_category": "wallet",
+        "device_age_days": 1,
+        "attack_type": "new_device",
+        "prediction": 0.454,
+        "baseline_prediction": 0.539
+      },
+      {
+        "transaction_id": "atk-8",
+        "amount": 10001,
+        "hour": 1,
+        "merchant_category": "wallet",
+        "device_age_days": 8,
+        "attack_type": "night_velocity",
+        "prediction": 0.175,
+        "baseline_prediction": 0.448
+      },
+      {
+        "transaction_id": "atk-9",
+        "amount": 4999,
+        "hour": 2,
+        "merchant_category": "electronics",
+        "device_age_days": 6,
+        "attack_type": "merchant_mimicry",
+        "prediction": 0.473,
+        "baseline_prediction": 0.613
+      },
+      {
+        "transaction_id": "atk-10",
+        "amount": 9999,
+        "hour": 3,
+        "merchant_category": "cash_transfer",
+        "device_age_days": 6,
+        "attack_type": "new_device",
+        "prediction": 0.368,
+        "baseline_prediction": 0.522
+      },
+      {
+        "transaction_id": "atk-11",
+        "amount": 9999,
+        "hour": 1,
+        "merchant_category": "cash_transfer",
+        "device_age_days": 1,
+        "attack_type": "new_device",
+        "prediction": 0.291,
+        "baseline_prediction": 0.363
+      },
+      {
+        "transaction_id": "atk-12",
+        "amount": 10001,
+        "hour": 1,
+        "merchant_category": "wallet",
+        "device_age_days": 10,
+        "attack_type": "night_velocity",
+        "prediction": 0.495,
+        "baseline_prediction": 0.619
+      },
+      {
+        "transaction_id": "atk-13",
+        "amount": 4999,
+        "hour": 3,
+        "merchant_category": "electronics",
+        "device_age_days": 14,
+        "attack_type": "night_velocity",
+        "prediction": 0.403,
+        "baseline_prediction": 0.644
+      },
+      {
+        "transaction_id": "atk-14",
+        "amount": 1999,
+        "hour": 22,
+        "merchant_category": "cash_transfer",
+        "device_age_days": 2,
+        "attack_type": "new_device",
+        "prediction": 0.377,
+        "baseline_prediction": 0.466
+      },
+      {
+        "transaction_id": "atk-15",
+        "amount": 1999,
+        "hour": 22,
+        "merchant_category": "wallet",
+        "device_age_days": 11,
+        "attack_type": "amount_fragmentation",
+        "prediction": 0.411,
+        "baseline_prediction": 0.668
+      },
+      {
+        "transaction_id": "atk-16",
+        "amount": 9999,
+        "hour": 2,
+        "merchant_category": "wallet",
+        "device_age_days": 2,
+        "attack_type": "amount_fragmentation",
+        "prediction": 0.602,
+        "baseline_prediction": 0.765
+      },
+      {
+        "transaction_id": "atk-17",
+        "amount": 9999,
+        "hour": 1,
+        "merchant_category": "cash_transfer",
+        "device_age_days": 0,
+        "attack_type": "amount_fragmentation",
+        "prediction": 0.413,
+        "baseline_prediction": 0.556
+      },
+      {
+        "transaction_id": "atk-18",
+        "amount": 1999,
+        "hour": 2,
+        "merchant_category": "cash_transfer",
+        "device_age_days": 1,
+        "attack_type": "new_device",
+        "prediction": 0.601,
+        "baseline_prediction": 0.659
+      },
+      {
+        "transaction_id": "atk-19",
+        "amount": 1999,
+        "hour": 22,
+        "merchant_category": "wallet",
+        "device_age_days": 4,
+        "attack_type": "new_device",
+        "prediction": 0.57,
+        "baseline_prediction": 0.653
+      },
+      {
+        "transaction_id": "atk-20",
+        "amount": 9999,
+        "hour": 1,
+        "merchant_category": "wallet",
+        "device_age_days": 14,
+        "attack_type": "night_velocity",
+        "prediction": 0.63,
+        "baseline_prediction": 0.801
+      },
+      {
+        "transaction_id": "atk-21",
+        "amount": 10001,
+        "hour": 22,
+        "merchant_category": "cash_transfer",
+        "device_age_days": 9,
+        "attack_type": "new_device",
+        "prediction": 0.471,
+        "baseline_prediction": 0.724
+      },
+      {
+        "transaction_id": "atk-22",
+        "amount": 4999,
+        "hour": 2,
+        "merchant_category": "electronics",
+        "device_age_days": 0,
+        "attack_type": "merchant_mimicry",
+        "prediction": 0.322,
+        "baseline_prediction": 0.495
+      },
+      {
+        "transaction_id": "atk-23",
+        "amount": 999,
+        "hour": 3,
+        "merchant_category": "electronics",
+        "device_age_days": 5,
+        "attack_type": "merchant_mimicry",
+        "prediction": 0.403,
+        "baseline_prediction": 0.672
+      },
+      {
+        "transaction_id": "atk-24",
+        "amount": 4999,
+        "hour": 22,
+        "merchant_category": "wallet",
+        "device_age_days": 2,
+        "attack_type": "night_velocity",
+        "prediction": 0.566,
+        "baseline_prediction": 0.75
+      },
+      {
+        "transaction_id": "atk-25",
+        "amount": 999,
+        "hour": 22,
+        "merchant_category": "wallet",
+        "device_age_days": 1,
+        "attack_type": "night_velocity",
+        "prediction": 0.323,
+        "baseline_prediction": 0.395
+      },
+      {
+        "transaction_id": "atk-26",
+        "amount": 10001,
+        "hour": 3,
+        "merchant_category": "cash_transfer",
+        "device_age_days": 7,
+        "attack_type": "amount_fragmentation",
+        "prediction": 0.579,
+        "baseline_prediction": 0.658
+      },
+      {
+        "transaction_id": "atk-27",
+        "amount": 9999,
+        "hour": 2,
+        "merchant_category": "electronics",
+        "device_age_days": 11,
+        "attack_type": "night_velocity",
+        "prediction": 0.55,
+        "baseline_prediction": 0.642
+      },
+      {
+        "transaction_id": "atk-28",
+        "amount": 999,
+        "hour": 1,
+        "merchant_category": "cash_transfer",
+        "device_age_days": 7,
+        "attack_type": "amount_fragmentation",
+        "prediction": 0.468,
+        "baseline_prediction": 0.634
+      },
+      {
+        "transaction_id": "atk-29",
+        "amount": 1999,
+        "hour": 3,
+        "merchant_category": "electronics",
+        "device_age_days": 9,
+        "attack_type": "amount_fragmentation",
+        "prediction": 0.357,
+        "baseline_prediction": 0.537
+      },
+      {
+        "transaction_id": "atk-30",
+        "amount": 1999,
+        "hour": 3,
+        "merchant_category": "electronics",
+        "device_age_days": 14,
+        "attack_type": "new_device",
+        "prediction": 0.594,
+        "baseline_prediction": 0.701
+      }
+    ],
+    "predictions": [
+      0.4,
+      0.562,
+      0.092,
+      0.574,
+      0.625,
+      0.145,
+      0.454,
+      0.175,
+      0.473,
+      0.368,
+      0.291,
+      0.495,
+      0.403,
+      0.377,
+      0.411,
+      0.602,
+      0.413,
+      0.601,
+      0.57,
+      0.63,
+      0.471,
+      0.322,
+      0.403,
+      0.566,
+      0.323,
+      0.579,
+      0.55,
+      0.468,
+      0.357,
+      0.594
+    ]
+  },
+  "perturbations": [
+    "load synthetic fraud attacks",
+    "run robustness evaluator",
+    "score benchmark",
+    "write replay",
+    "generate report"
+  ],
+  "evaluator_decisions": [
+    "Adversarial testing for fraud scoring, alerting, and suspicious behavior detection baseline signal check: Prediction volatility is 0.141.",
+    "Adversarial testing for fraud scoring, alerting, and suspicious behavior detection segment consistency check: Prediction volatility is 0.141.",
+    "Adversarial testing for fraud scoring, alerting, and suspicious behavior detection edge-case screen: Prediction volatility is 0.141.",
+    "Multi-scenario Adversarial testing for fraud scoring, alerting, and suspicious behavior detection evaluation: Prediction volatility is 0.141."
+  ],
+  "scores": {
+    "outputs": [
+      {
+        "score": 90,
+        "risk_level": "Low",
+        "insight": "Adversarial testing for fraud scoring, alerting, and suspicious behavior detection baseline signal check: Prediction volatility is 0.141.",
+        "recommendation": [
+          "Add adversarial perturbations to regression tests.",
+          "Harden thresholds that can be gamed through small input changes."
+        ],
+        "metadata": {
+          "pillar": "Risk",
+          "practice": "Adversarial testing",
+          "ai_system": "Fraud detection AI",
+          "test_type": "light"
+        }
+      },
+      {
+        "score": 90,
+        "risk_level": "Low",
+        "insight": "Adversarial testing for fraud scoring, alerting, and suspicious behavior detection segment consistency check: Prediction volatility is 0.141.",
+        "recommendation": [
+          "Add adversarial perturbations to regression tests.",
+          "Harden thresholds that can be gamed through small input changes."
+        ],
+        "metadata": {
+          "pillar": "Risk",
+          "practice": "Adversarial testing",
+          "ai_system": "Fraud detection AI",
+          "test_type": "light"
+        }
+      },
+      {
+        "score": 90,
+        "risk_level": "Low",
+        "insight": "Adversarial testing for fraud scoring, alerting, and suspicious behavior detection edge-case screen: Prediction volatility is 0.141.",
+        "recommendation": [
+          "Add adversarial perturbations to regression tests.",
+          "Harden thresholds that can be gamed through small input changes."
+        ],
+        "metadata": {
+          "pillar": "Risk",
+          "practice": "Adversarial testing",
+          "ai_system": "Fraud detection AI",
+          "test_type": "light"
+        }
+      },
+      {
+        "score": 86,
+        "risk_level": "Low",
+        "insight": "Multi-scenario Adversarial testing for fraud scoring, alerting, and suspicious behavior detection evaluation: Prediction volatility is 0.141.",
+        "recommendation": [
+          "Add adversarial perturbations to regression tests.",
+          "Harden thresholds that can be gamed through small input changes."
+        ],
+        "metadata": {
+          "pillar": "Risk",
+          "practice": "Adversarial testing",
+          "ai_system": "Fraud detection AI",
+          "test_type": "strong"
+        }
+      }
+    ],
+    "aggregate_score": 88,
+    "aggregate_risk_level": "Low",
+    "benchmark_indicator": {
+      "eligible": true,
+      "distribution_key": "Fraud detection AI|Risk|Adversarial testing|Adversarial testing for fraud scoring, alerting, and suspicious behavior detection",
+      "meaningfulness_total": {
+        "risk_criticality": 5,
+        "founder_pain": 4,
+        "investor_reputational_importance": 5,
+        "benchmark_density_potential": 5,
+        "technical_signal_strength": 5,
+        "mvp_feasibility": 4
+      }
+    }
+  },
+  "recommendations": [
+    "Add adversarial perturbations to regression tests.",
+    "Add adversarial perturbations to regression tests.",
+    "Add adversarial perturbations to regression tests."
+  ],
+  "benchmark_outputs": {
+    "benchmark_id": "fraud_robustness_benchmark_v1",
+    "metric": "Adversarial Robustness Score",
+    "score": 88,
+    "industry_median": 70,
+    "top_quartile": 80,
+    "percentile": 90,
+    "distribution": [
+      42,
+      51,
+      58,
+      63,
+      68,
+      71,
+      76,
+      80,
+      84,
+      89
+    ],
+    "peer_grouping": [
+      "lendingtech",
+      "fraud_detection",
+      "phase_1_startup"
+    ]
+  },
+  "report": {
+    "title": "Demo Lendingtech Startup AI Health Check Report",
+    "scorecard": {
+      "aggregate_score": 88,
+      "aggregate_risk_level": "Low",
+      "tests_run": 4,
+      "pillar_scores": {
+        "Risk": 89
+      },
+      "why_this_score_happened": [
+        "Adversarial testing: Multi-scenario Adversarial testing for fraud scoring, alerting, and suspicious behavior detection evaluation: Prediction volatility is 0.141.",
+        "Adversarial testing: Adversarial testing for fraud scoring, alerting, and suspicious behavior detection baseline signal check: Prediction volatility is 0.141.",
+        "Adversarial testing: Adversarial testing for fraud scoring, alerting, and suspicious behavior detection segment consistency check: Prediction volatility is 0.141."
+      ],
+      "benchmark": {
+        "eligible": true,
+        "distribution_key": "Fraud detection AI|Risk|Adversarial testing|Adversarial testing for fraud scoring, alerting, and suspicious behavior detection",
+        "meaningfulness_total": {
+          "risk_criticality": 5,
+          "founder_pain": 4,
+          "investor_reputational_importance": 5,
+          "benchmark_density_potential": 5,
+          "technical_signal_strength": 5,
+          "mvp_feasibility": 4
+        }
+      }
+    },
+    "risk_summary": "Overall AI health score is 88/100 with low aggregate risk.",
+    "key_weaknesses": [
+      "Multi-scenario Adversarial testing for fraud scoring, alerting, and suspicious behavior detection evaluation: Prediction volatility is 0.141.",
+      "Adversarial testing for fraud scoring, alerting, and suspicious behavior detection baseline signal check: Prediction volatility is 0.141.",
+      "Adversarial testing for fraud scoring, alerting, and suspicious behavior detection segment consistency check: Prediction volatility is 0.141."
+    ],
+    "recommended_next_steps": [
+      "Add adversarial perturbations to regression tests.",
+      "Add adversarial perturbations to regression tests.",
+      "Add adversarial perturbations to regression tests."
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AI Health Report",
+  "type": "object",
+  "required": ["title", "scorecard", "risk_summary", "key_weaknesses", "recommended_next_steps"],
+  "properties": {
+    "title": {"type": "string"},
+    "scorecard": {"type": "object"},
+    "risk_summary": {"type": "string"},
+    "key_weaknesses": {"type": "array", "items": {"type": "string"}},
+    "recommended_next_steps": {"type": "array", "items": {"type": "string"}}
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Perturbation Registry",
+  "type": "object",
+  "required": ["registry_name", "version", "perturbations"],
+  "properties": {
+    "registry_name": {"type": "string"},
+    "version": {"type": "string"},
+    "perturbations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "perturbation_type", "supported_ai_systems", "supported_practices", "severity", "adversarial_category", "synthetic_generation_method"]
+      }
+    }
+  }
+}

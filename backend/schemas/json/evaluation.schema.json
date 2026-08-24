@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Evaluation Result",
+  "type": "object",
+  "required": ["outputs", "aggregate_score", "aggregate_risk_level", "benchmark_indicator"],
+  "properties": {
+    "outputs": {"type": "array"},
+    "aggregate_score": {"type": "integer", "minimum": 0, "maximum": 100},
+    "aggregate_risk_level": {"enum": ["Low", "Medium", "High"]},
+    "benchmark_indicator": {"type": "object"}
+  }
+}

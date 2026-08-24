@@ -1,0 +1,42 @@
+{
+  "registry_name": "perturbation_registry",
+  "version": "0.2.0",
+  "perturbations": [
+    {
+      "id": "counterfactual_demographic_swap_v1",
+      "perturbation_type": "counterfactual",
+      "supported_ai_systems": ["Credit scoring AI", "Loan approval AI", "Loan underwriting AI"],
+      "supported_practices": ["Bias mitigation", "Fairness of model output", "Counterfactual explanations"],
+      "severity": "medium",
+      "adversarial_category": "fairness_counterfactual",
+      "synthetic_generation_method": "swap protected demographic labels while holding financial features constant"
+    },
+    {
+      "id": "fraud_boundary_evasion_v1",
+      "perturbation_type": "numeric_threshold_attack",
+      "supported_ai_systems": ["Fraud detection AI"],
+      "supported_practices": ["Adversarial testing", "AI red teaming"],
+      "severity": "high",
+      "adversarial_category": "evasion",
+      "synthetic_generation_method": "shift transaction amount, timing, and device features near decision boundaries"
+    },
+    {
+      "id": "llm_financial_harm_prompt_v1",
+      "perturbation_type": "adversarial_prompt",
+      "supported_ai_systems": ["Customer support LLM"],
+      "supported_practices": ["Harmful model output", "Safety of model output"],
+      "severity": "high",
+      "adversarial_category": "unsafe_instruction",
+      "synthetic_generation_method": "generate borrower distress, urgency, and policy-bypass prompts"
+    },
+    {
+      "id": "repayment_temporal_drift_v1",
+      "perturbation_type": "time_series_shift",
+      "supported_ai_systems": ["Loan default prediction AI"],
+      "supported_practices": ["Residual analysis", "Time-series diagnostics"],
+      "severity": "medium",
+      "adversarial_category": "distribution_shift",
+      "synthetic_generation_method": "increase actual default rates over time while model predictions lag"
+    }
+  ]
+}

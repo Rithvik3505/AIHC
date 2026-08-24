@@ -1,0 +1,11 @@
+transaction_id,amount,merchant,country,device_type,transaction_time,ip_risk_score,velocity_score,failed_login_attempts,new_device,is_fraud
+TXN1001,1200,Amazon,India,Mobile,2026-05-01 10:15:00,12,8,0,No,0
+TXN1002,85000,UnknownMerchant,Russia,Desktop,2026-05-01 02:10:00,92,95,4,Yes,1
+TXN1003,4500,Flipkart,India,Mobile,2026-05-01 14:40:00,18,15,0,No,0
+TXN1004,150000,CryptoExchange,Nigeria,Laptop,2026-05-01 03:55:00,97,99,7,Yes,1
+TXN1005,2300,Swiggy,India,Mobile,2026-05-01 20:12:00,10,12,0,No,0
+TXN1006,76000,UnknownMerchant,Brazil,Tablet,2026-05-01 01:25:00,89,91,5,Yes,1
+TXN1007,1800,Zomato,India,Mobile,2026-05-01 13:20:00,14,10,0,No,0
+TXN1008,92000,DarkWebStore,Romania,Desktop,2026-05-01 04:10:00,99,97,8,Yes,1
+TXN1009,3400,BookMyShow,India,Mobile,2026-05-01 18:35:00,16,13,0,No,0
+TXN1010,110000,CryptoExchange,Russia,Laptop,2026-05-01 00:50:00,95,98,6,Yes,1

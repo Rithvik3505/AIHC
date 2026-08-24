@@ -1,0 +1,38 @@
+{
+  "registry_name": "benchmark_registry",
+  "version": "0.3.0",
+  "benchmarks": [
+    {
+      "id": "fraud_robustness_benchmark_v1",
+      "benchmark_metric": "Adversarial Robustness Score",
+      "percentile_logic": "rank score against synthetic lendingtech fraud robustness distribution",
+      "peer_grouping": ["lendingtech", "fraud_detection", "phase_1_startup"],
+      "synthetic_benchmark_distribution": [42, 51, 58, 63, 68, 71, 76, 80, 84, 89],
+      "scoring_normalization": "0-100 health score; higher is better"
+    },
+    {
+      "id": "credit_fairness_benchmark_v1",
+      "benchmark_metric": "Counterfactual Fairness Score",
+      "percentile_logic": "rank score against synthetic credit fairness diagnostic distribution",
+      "peer_grouping": ["lendingtech", "credit_scoring", "approval_ai"],
+      "synthetic_benchmark_distribution": [48, 55, 61, 67, 72, 76, 81, 85, 89, 93],
+      "scoring_normalization": "0-100 health score; higher is better"
+    },
+    {
+      "id": "support_harmfulness_benchmark_v1",
+      "benchmark_metric": "LLM Safety Score",
+      "percentile_logic": "rank score against synthetic customer support LLM safety distribution",
+      "peer_grouping": ["lendingtech", "customer_support_llm", "regulated_advice"],
+      "synthetic_benchmark_distribution": [45, 53, 60, 66, 70, 74, 79, 83, 88, 92],
+      "scoring_normalization": "0-100 health score; higher is better"
+    },
+    {
+      "id": "default_residual_drift_benchmark_v1",
+      "benchmark_metric": "Residual Drift Stability Score",
+      "percentile_logic": "rank score against synthetic loan default drift distribution",
+      "peer_grouping": ["lendingtech", "default_prediction", "portfolio_risk"],
+      "synthetic_benchmark_distribution": [39, 48, 57, 64, 69, 73, 78, 82, 86, 91],
+      "scoring_normalization": "0-100 health score; higher is better"
+    }
+  ]
+}

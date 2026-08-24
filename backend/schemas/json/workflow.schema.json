@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Workflow Registry",
+  "type": "object",
+  "required": ["registry_name", "version", "workflows"],
+  "properties": {
+    "registry_name": {"type": "string"},
+    "version": {"type": "string"},
+    "workflows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "ai_system", "pillar", "supporting_practice", "use_case", "orchestration_logic", "supported_uploads", "frontend_routing", "report_template"]
+      }
+    }
+  }
+}

@@ -1,0 +1,2 @@
+"""Founder-facing report generation."""
+

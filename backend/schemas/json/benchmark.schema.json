@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Benchmark Registry",
+  "type": "object",
+  "required": ["registry_name", "version", "benchmarks"],
+  "properties": {
+    "registry_name": {"type": "string"},
+    "version": {"type": "string"},
+    "benchmarks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "benchmark_metric", "percentile_logic", "peer_grouping", "synthetic_benchmark_distribution", "scoring_normalization"]
+      }
+    }
+  }
+}

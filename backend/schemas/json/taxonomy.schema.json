@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Taxonomy Registry",
+  "type": "object",
+  "required": ["registry_name", "version", "fintech_segment", "hierarchy", "test_contract"],
+  "properties": {
+    "registry_name": {"type": "string"},
+    "version": {"type": "string"},
+    "fintech_segment": {"type": "string"},
+    "source_of_truth": {"type": "string"},
+    "hierarchy": {"type": "array", "items": {"type": "string"}},
+    "meaningfulness_heuristic": {"type": "array", "items": {"type": "string"}},
+    "test_contract": {"type": "object"}
+  }
+}

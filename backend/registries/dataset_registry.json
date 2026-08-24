@@ -1,0 +1,66 @@
+{
+  "registry_name": "dataset_registry",
+  "version": "0.3.0",
+  "datasets": [
+    {
+      "id": "synthetic_demo",
+      "source": "internal_synthetic_generators",
+      "schema": ["borrowers", "transactions", "support_conversations", "repayment_drift", "noisy_documents"],
+      "supported_ai_systems": ["Credit scoring AI", "Loan approval AI", "Fraud detection AI", "KYC verification AI", "Loan default prediction AI", "Loan underwriting AI", "OCR document extraction", "Customer support LLM"],
+      "supported_practices": ["Harmful model output", "Stress testing", "Adversarial testing", "AI red teaming"],
+      "synthetic": true,
+      "licensing": "internal_demo",
+      "ingestion_method": "backend.synthetic_data.generators"
+    },
+    {
+      "id": "generated_perturbation",
+      "source": "perturbation_engine",
+      "schema": ["baseline_record", "perturbed_record", "perturbation_type", "severity"],
+      "supported_ai_systems": ["Credit scoring AI", "Loan approval AI", "Fraud detection AI", "KYC verification AI", "Loan default prediction AI", "Loan underwriting AI", "OCR document extraction", "Customer support LLM"],
+      "supported_practices": ["Counterfactual explanations", "Safety of model output", "Stress testing", "Adversarial testing", "AI red teaming"],
+      "synthetic": true,
+      "licensing": "internal_generated",
+      "ingestion_method": "backend.perturbation_engine"
+    },
+    {
+      "id": "customer_dataset",
+      "source": "customer_upload",
+      "schema": ["CSV", "Prediction Log", "Prompt Log", "Conversation Transcript", "API Response", "Feature Importance Output", "Residual File", "Time Series", "Image", "PDF"],
+      "supported_ai_systems": ["Credit scoring AI", "Loan approval AI", "Fraud detection AI", "KYC verification AI", "Loan default prediction AI", "Loan underwriting AI", "OCR document extraction", "Customer support LLM"],
+      "supported_practices": ["Bias mitigation", "Fairness of model output", "Model validation", "Model accuracy", "Feature importance analysis", "Data privacy / PII protection", "Model transparency", "Glass box vs black box testing", "Human-in-the-loop", "Documentation & compliance checklists", "Residual analysis", "Outlier diagnostics", "Correlation analysis", "Clustering / anomaly analysis", "Time-series diagnostics"],
+      "synthetic": false,
+      "licensing": "customer_provided",
+      "ingestion_method": "frontend_upload_panel"
+    },
+    {
+      "id": "public_dataset",
+      "source": "German Credit, LendingClub-style, Kaggle fraud, Fairlearn, Jigsaw toxicity",
+      "schema": ["dataset_manifest_only"],
+      "supported_ai_systems": ["Credit scoring AI", "Loan approval AI", "Fraud detection AI", "Customer support LLM"],
+      "supported_practices": ["Bias mitigation", "Fairness of model output", "Model accuracy", "Harmful model output"],
+      "synthetic": false,
+      "licensing": "verify_before_ingestion",
+      "ingestion_method": "manifest_only_do_not_commit_raw_data"
+    },
+    {
+      "id": "benchmark_dataset",
+      "source": "synthetic_benchmark_distributions",
+      "schema": ["benchmark_id", "metric", "distribution", "peer_grouping"],
+      "supported_ai_systems": ["Credit scoring AI", "Loan approval AI", "Fraud detection AI", "Loan default prediction AI", "Customer support LLM"],
+      "supported_practices": ["Bias mitigation", "Fairness of model output", "Harmful model output", "Safety of model output", "Stress testing", "Residual analysis", "Outlier diagnostics", "Adversarial testing"],
+      "synthetic": true,
+      "licensing": "internal_demo",
+      "ingestion_method": "backend.benchmark_engine.distributions"
+    },
+    {
+      "id": "none",
+      "source": "no_dataset_required",
+      "schema": [],
+      "supported_ai_systems": ["Credit scoring AI", "Loan approval AI", "Fraud detection AI", "KYC verification AI", "Loan default prediction AI", "Loan underwriting AI", "OCR document extraction", "Customer support LLM"],
+      "supported_practices": ["Documentation & compliance checklists"],
+      "synthetic": false,
+      "licensing": "not_applicable",
+      "ingestion_method": "advisor_review"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Dataset Registry",
+  "type": "object",
+  "required": ["registry_name", "version", "datasets"],
+  "properties": {
+    "registry_name": {"type": "string"},
+    "version": {"type": "string"},
+    "datasets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "source", "schema", "supported_ai_systems", "supported_practices", "synthetic", "licensing", "ingestion_method"]
+      }
+    }
+  }
+}
