@@ -15,10 +15,20 @@ WORKFLOW_BENCHMARK_MAP = {
 }
 
 
-def benchmark_for_workflow(workflow_id: str, score: int) -> dict:
+def benchmark_for_workflow(workflow_id: str, score: int | None) -> dict:
     benchmark_id = WORKFLOW_BENCHMARK_MAP.get(workflow_id)
     benchmarks = registry_items("benchmark_registry.json", "benchmarks")
     benchmark = next((item for item in benchmarks if item["id"] == benchmark_id), benchmarks[0])
+    if score is None:
+        return {
+            "benchmark_id": benchmark["id"],
+            "metric": benchmark["benchmark_metric"],
+            "score": None,
+            "eligible": False,
+            "reason": "No assessable aggregate score is available for benchmark comparison.",
+            "distribution": benchmark["synthetic_benchmark_distribution"],
+            "peer_grouping": benchmark["peer_grouping"],
+        }
     distribution = sorted(benchmark["synthetic_benchmark_distribution"])
     below_or_equal = len([value for value in distribution if value <= score])
     percentile = round((below_or_equal / len(distribution)) * 100)

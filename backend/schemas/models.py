@@ -73,6 +73,21 @@ class TestKind(str, Enum):
     strong = "strong"
 
 
+class ExecutionStatus(str, Enum):
+    completed = "completed"
+    insufficient_evidence = "insufficient_evidence"
+    not_implemented = "not_implemented"
+    failed = "failed"
+
+
+class EvidenceStatus(str, Enum):
+    valid = "valid"
+    missing = "missing"
+    malformed = "malformed"
+    insufficient = "insufficient"
+    not_applicable = "not_applicable"
+
+
 class MeaningfulnessScore(BaseModel):
     risk_criticality: int = Field(ge=0, le=5)
     founder_pain: int = Field(ge=0, le=5)
@@ -95,15 +110,37 @@ class MeaningfulnessScore(BaseModel):
         )
 
 
+class ImplementationMetadata(BaseModel):
+    implementation_status: str
+    workflow_status: str
+    workflow_reference: str
+    evaluator_status: str
+    evaluator_reference: str
+    evidence_type: str
+    dataset_source: str
+    dataset_reference: str
+    benchmark_status: str
+    benchmark_reference: str
+    customer_upload: str
+    automation_level: str
+
+
 class TestDefinition(BaseModel):
     id: str
     name: str
     test_type: TestKind
     objective: str
     inputs_required: list[str]
+    preprocessing_steps: list[str]
+    perturbation_strategy: list[str]
+    technique: str
     method: list[str]
-    metrics: list[str]
-    implementation_metadata: dict[str, Any] = Field(default_factory=dict)
+    primary_metrics: list[str]
+    secondary_metrics: list[str]
+    benchmark_interpretation: list[str]
+    failure_criteria: list[str]
+    recommendation_logic: list[str]
+    implementation_metadata: ImplementationMetadata
 
 
 class UseCaseDefinition(BaseModel):
@@ -143,13 +180,36 @@ class EvaluationMetadata(BaseModel):
     practice: str
     ai_system: str
     test_type: TestKind
+    test_id: str | None = None
+    evaluator_id: str | None = None
+    diagnostic_family: str | None = None
+
+
+class EvaluationCoverage(BaseModel):
+    selected_test_count: int = 0
+    completed_count: int = 0
+    insufficient_evidence_count: int = 0
+    not_implemented_count: int = 0
+    failed_count: int = 0
+    score_coverage_percentage: float = 0.0
 
 
 class TestOutput(BaseModel):
-    score: int = Field(ge=0, le=100)
-    risk_level: RiskLevel
+    score: int | None = Field(default=None, ge=0, le=100)
+    risk_level: RiskLevel | None = None
+    execution_status: ExecutionStatus = ExecutionStatus.completed
+    evidence_status: EvidenceStatus = EvidenceStatus.valid
+    evaluator_id: str | None = None
+    raw_metrics: dict[str, Any] = Field(default_factory=dict)
+    metric_interpretation: dict[str, str] = Field(default_factory=dict)
+    sample_size: int | None = None
+    coverage: dict[str, Any] = Field(default_factory=dict)
+    thresholds: dict[str, Any] = Field(default_factory=dict)
+    findings: list[str] = Field(default_factory=list)
     insight: str
     recommendation: list[str]
+    limitations: list[str] = Field(default_factory=list)
+    execution_metadata: dict[str, Any] = Field(default_factory=dict)
     metadata: EvaluationMetadata
 
 
@@ -164,8 +224,9 @@ class EvaluationRequest(BaseModel):
 
 class EvaluationResponse(BaseModel):
     outputs: list[TestOutput]
-    aggregate_score: int = Field(ge=0, le=100)
-    aggregate_risk_level: RiskLevel
+    aggregate_score: int | None = Field(default=None, ge=0, le=100)
+    aggregate_risk_level: RiskLevel | None = None
+    coverage: EvaluationCoverage = Field(default_factory=EvaluationCoverage)
     benchmark_indicator: dict[str, Any]
 
 

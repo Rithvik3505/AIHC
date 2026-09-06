@@ -20,7 +20,16 @@ type TaxonomyTest = {
   name: string;
   test_type: "light" | "strong";
   objective: string;
-  metrics: string[];
+  inputs_required: string[];
+  preprocessing_steps: string[];
+  perturbation_strategy: string[];
+  technique: string;
+  method: string[];
+  primary_metrics: string[];
+  secondary_metrics: string[];
+  benchmark_interpretation: string[];
+  failure_criteria: string[];
+  recommendation_logic: string[];
   implementation_metadata: ImplementationMetadata;
 };
 

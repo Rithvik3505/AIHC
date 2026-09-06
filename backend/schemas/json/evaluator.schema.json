@@ -10,7 +10,14 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "evaluator_type", "scoring_method", "supported_practices", "supported_ai_systems", "deterministic", "llm_or_statistical"]
+        "anyOf": [
+          {
+            "required": ["id", "evaluator_type", "scoring_method", "supported_practices", "supported_ai_systems", "deterministic", "llm_or_statistical"]
+          },
+          {
+            "required": ["id", "implementation_module", "supported_test_ids", "required_evidence", "algorithm_family", "deterministic", "implementation_status", "known_limitations"]
+          }
+        ]
       }
     }
   }

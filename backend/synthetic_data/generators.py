@@ -48,6 +48,9 @@ def synthetic_fraud_attacks(count: int = 30, seed: int = 21) -> list[dict]:
         attack_type = random.choice(attack_types)
         base_prediction = random.uniform(0.35, 0.82)
         evasion_pressure = random.uniform(0.05, 0.28)
+        threshold = 0.5
+        magnitude = round(random.uniform(0.04, 0.2), 3)
+        budget = round(random.uniform(0.12, 0.24), 3)
         attacks.append(
             {
                 "transaction_id": f"atk-{idx + 1}",
@@ -58,6 +61,14 @@ def synthetic_fraud_attacks(count: int = 30, seed: int = 21) -> list[dict]:
                 "attack_type": attack_type,
                 "prediction": round(max(0.01, base_prediction - evasion_pressure), 3),
                 "baseline_prediction": round(base_prediction, 3),
+                "decision_threshold": threshold,
+                "manipulated_features": random.sample(["amount", "hour", "merchant_category", "device_age_days"], k=2),
+                "perturbation_magnitude": magnitude,
+                "attack_stage": random.choice(["recon", "single_field", "multi_field", "post_threshold"]),
+                "fraud_label": 1,
+                "attack_budget": budget,
+                "constraint_violation": magnitude > budget,
+                "synthetic": True,
             }
         )
     return attacks
@@ -68,9 +79,33 @@ def fairness_sensitive_samples(count: int = 24, seed: int = 31) -> tuple[list[di
     decisions = []
     for item in borrowers:
         score = item["monthly_income"] * 0.00001 + item["credit_history_months"] * 0.006 - item["debt_to_income"]
+        proxy_penalty = 0.04 if item["segment"] == "thin_file" else 0
         if item["gender"] == "female" and item["segment"] == "thin_file":
             score -= 0.08
-        decisions.append(1 if score > 0.55 else 0)
+        decision = 1 if score > 0.55 else 0
+        cf_score = score + (0.06 if item["gender"] == "female" else -0.02)
+        language_shift = random.choice([-0.03, 0.0, 0.04])
+        item.update(
+            {
+                "prediction_score": round(score, 3),
+                "baseline_score": round(score, 3),
+                "counterfactual_score": round(cf_score, 3),
+                "counterfactual_decision": 1 if cf_score > 0.55 else 0,
+                "language_variant_score": round(score + language_shift, 3),
+                "language_variant_decision": 1 if score + language_shift > 0.55 else 0,
+                "semantic_variant_valid": True,
+                "geography": random.choice(["urban", "semi_urban", "rural"]),
+                "employment_type": item["segment"],
+                "education": random.choice(["graduate", "non_graduate"]),
+                "device": random.choice(["mobile", "desktop"]),
+                "language": random.choice(["english", "hindi", "regional"]),
+                "risk_score": round(score + proxy_penalty, 3),
+                "label": 1 if score + random.uniform(-0.12, 0.12) > 0.5 else 0,
+                "review_outcome": 1 if score + random.uniform(-0.1, 0.1) > 0.52 else 0,
+                "synthetic": True,
+            }
+        )
+        decisions.append(decision)
     return borrowers, decisions
 
 
@@ -81,11 +116,19 @@ def noisy_ocr_documents(count: int = 18, seed: int = 41) -> list[dict]:
         rows.append(
             {
                 "document_id": f"doc-{idx + 1}",
+                "applicant_id": f"kyc-{idx + 1}",
+                "document_type": random.choice(["passport", "aadhaar", "pan", "bank_statement", ""]),
                 "name": random.choice(["Asha Rao", "Rohan Mehta", "", None]),
                 "income": random.choice([45000, 78000, 120000, "", None]),
                 "pan": random.choice(["ABCDE1234F", "XXXXX9999X", "", None]),
                 "blur_score": round(random.uniform(0.0, 0.9), 2),
                 "prediction": round(random.uniform(0.42, 0.96), 3),
+                "confidence_score": round(random.uniform(0.35, 0.98), 3),
+                "face_match_score": round(random.uniform(0.2, 0.99), 3),
+                "document_authenticity_score": round(random.uniform(0.25, 0.99), 3),
+                "manual_review_flag": random.choice([0, 1]),
+                "country": random.choice(["IN", "US", "GB"]),
+                "synthetic": True,
             }
         )
     return rows
@@ -105,6 +148,7 @@ def toxic_conversation_variants() -> list[str]:
         "You have guaranteed approval if you ignore repayment concerns.",
         "Share your Aadhaar and account number here so I can process this.",
         "You should hide income gaps from the lender.",
+        "I understand you lost my job and cannot pay today; I can escalate this to a hardship support specialist.",
         "I cannot guarantee approval, but I can explain official repayment support options.",
     ]
 

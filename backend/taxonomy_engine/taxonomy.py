@@ -3,6 +3,8 @@ from __future__ import annotations
 from copy import deepcopy
 
 from backend.schemas.models import TaxonomyDefinition
+from backend.diagnostics_engine.test_specific import evaluator_config_for
+from backend.taxonomy_engine.diagnostic_specs import build_diagnostic_spec
 
 
 def _meaningful(risk: int, pain: int, reputation: int, benchmark: int, signal: int, feasibility: int) -> dict:
@@ -146,7 +148,7 @@ TEST_PATTERNS = {
 }
 
 
-def _test_metadata(ai_system: str, practice: str, test_type: str) -> dict:
+def _test_metadata(ai_system: str, practice: str, test_type: str, test_id: str | None = None) -> dict:
     workflow_references = globals().get("WORKFLOW_REFERENCES", {})
     evaluator_references = globals().get("EVALUATOR_REFERENCES", {})
     evidence_types = globals().get("EVIDENCE_TYPES", {})
@@ -158,21 +160,22 @@ def _test_metadata(ai_system: str, practice: str, test_type: str) -> dict:
     benchmark_references = globals().get("BENCHMARK_REFERENCES", {})
     workflow_reference = workflow_references.get((ai_system, practice))
     evaluator_reference = evaluator_references.get(practice, "Custom Rule Engine")
+    evaluator_config = evaluator_config_for(test_id) if test_id else None
     evidence_type = evidence_types.get(practice, "CSV")
     dataset_source = dataset_sources.get(practice, "Customer Dataset")
     benchmark_available = practice in benchmarked_practices or workflow_reference is not None
     return {
-        "implementation_status": "Ready" if workflow_reference else ("Partial" if practice in partial_practices else "Planned"),
+        "implementation_status": "Partial" if evaluator_config else ("Ready" if workflow_reference else ("Partial" if practice in partial_practices else "Planned")),
         "workflow_status": "Implemented" if workflow_reference else "Planned",
         "workflow_reference": workflow_reference or "workflow_registry:planned",
-        "evaluator_status": "Implemented" if practice in implemented_evaluator_practices else "Planned",
-        "evaluator_reference": evaluator_reference,
+        "evaluator_status": "Implemented" if evaluator_config or practice in implemented_evaluator_practices else "Planned",
+        "evaluator_reference": f"evaluator_registry:{evaluator_config.evaluator_id}" if evaluator_config else evaluator_reference,
         "evidence_type": evidence_type,
         "dataset_source": dataset_source,
         "dataset_reference": dataset_references.get(dataset_source, "dataset_registry:customer_dataset"),
         "benchmark_status": "Available" if benchmark_available else "Planned",
         "benchmark_reference": benchmark_references.get(practice, "benchmark_registry:planned"),
-        "customer_upload": "Supported" if evidence_type in {"CSV", "Prediction Log", "Prompt Log", "Conversation Transcript", "Residual File", "Time Series", "Image", "PDF"} else "Planned",
+        "customer_upload": "Not supported" if evaluator_config else ("Supported" if evidence_type in {"CSV", "Prediction Log", "Prompt Log", "Conversation Transcript", "Residual File", "Time Series", "Image", "PDF"} else "Planned"),
         "automation_level": "Automated" if workflow_reference and test_type == "light" else "Assisted",
     }
 
@@ -182,19 +185,17 @@ def _tests(prefix: str, topic: str, metrics: list[str], ai_system: str, practice
     context_fn = globals().get("_system_context")
     context = context_fn(ai_system) if context_fn else topic
     tests: list[dict] = []
-    for index, (name, objective) in enumerate(patterns, start=1):
+    for index, (name, _legacy_objective) in enumerate(patterns, start=1):
         test_type = "strong" if index == 4 else "light"
         test_id = f"{prefix}-{'st1' if test_type == 'strong' else f'lt{index}'}"
+        diagnostic_spec = build_diagnostic_spec(ai_system, practice, index)
         tests.append(
             {
                 "id": test_id,
                 "name": f"{name} for {context}",
                 "test_type": test_type,
-                "objective": objective,
-                "inputs_required": globals().get("INPUT_REQUIREMENTS", {}).get(practice, ["customer evidence file", "model outputs"]),
-                "method": globals().get("METHOD_STEPS", {}).get(practice, ["Normalize evidence", "run diagnostic evaluator", "score failures", "generate recommendations"]),
-                "metrics": metrics if test_type == "strong" else metrics[:2],
-                "implementation_metadata": _test_metadata(ai_system, practice, test_type),
+                **diagnostic_spec,
+                "implementation_metadata": _test_metadata(ai_system, practice, test_type, test_id),
             }
         )
     return tests

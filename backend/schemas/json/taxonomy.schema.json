@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Taxonomy Registry",
   "type": "object",
-  "required": ["registry_name", "version", "fintech_segment", "hierarchy", "test_contract"],
+  "required": ["registry_name", "version", "fintech_segment", "hierarchy", "test_contract", "taxonomy"],
   "properties": {
     "registry_name": {"type": "string"},
     "version": {"type": "string"},
@@ -10,6 +10,15 @@
     "source_of_truth": {"type": "string"},
     "hierarchy": {"type": "array", "items": {"type": "string"}},
     "meaningfulness_heuristic": {"type": "array", "items": {"type": "string"}},
-    "test_contract": {"type": "object"}
+    "test_contract": {"type": "object"},
+    "taxonomy": {
+      "type": "object",
+      "required": ["fintech_segment", "product_phase", "ai_systems"],
+      "properties": {
+        "fintech_segment": {"const": "Lendingtech"},
+        "product_phase": {"const": "Assisted Intelligence MVP"},
+        "ai_systems": {"type": "array"}
+      }
+    }
   }
 }

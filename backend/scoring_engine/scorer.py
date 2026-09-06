@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from statistics import mean
 
-from backend.schemas.models import RiskLevel, TestOutput
+from backend.schemas.models import EvaluationCoverage, ExecutionStatus, RiskLevel, TestOutput
 
 
 def risk_level_for_score(score: int, inverted: bool = False) -> RiskLevel:
@@ -29,14 +29,35 @@ def weighted_score(scores: list[tuple[int, float]]) -> int:
     return round(sum(score * weight for score, weight in scores) / total_weight)
 
 
-def aggregate_outputs(outputs: list[TestOutput]) -> tuple[int, RiskLevel]:
+def coverage_for_outputs(outputs: list[TestOutput]) -> EvaluationCoverage:
+    selected = len(outputs)
+    completed = sum(output.execution_status == ExecutionStatus.completed and output.score is not None for output in outputs)
+    insufficient = sum(output.execution_status == ExecutionStatus.insufficient_evidence for output in outputs)
+    not_implemented = sum(output.execution_status == ExecutionStatus.not_implemented for output in outputs)
+    failed = sum(output.execution_status == ExecutionStatus.failed for output in outputs)
+    coverage = round((completed / selected) * 100, 2) if selected else 0.0
+    return EvaluationCoverage(
+        selected_test_count=selected,
+        completed_count=completed,
+        insufficient_evidence_count=insufficient,
+        not_implemented_count=not_implemented,
+        failed_count=failed,
+        score_coverage_percentage=coverage,
+    )
+
+
+def aggregate_outputs(outputs: list[TestOutput]) -> tuple[int | None, RiskLevel | None, EvaluationCoverage]:
     strong_weight = 2.0
     light_weight = 1.0
+    assessable = [output for output in outputs if output.execution_status == ExecutionStatus.completed and output.score is not None]
+    coverage = coverage_for_outputs(outputs)
+    if not assessable:
+        return None, None, coverage
     score = weighted_score(
         [
             (output.score, strong_weight if output.metadata.test_type.value == "strong" else light_weight)
-            for output in outputs
+            for output in assessable
+            if output.score is not None
         ]
     )
-    return score, risk_level_for_score(score)
-
+    return score, risk_level_for_score(score), coverage

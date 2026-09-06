@@ -143,8 +143,8 @@ def build_document_xml(registry: dict) -> str:
                         body.append(p("Method:"))
                         for item in test["method"]:
                             body.append(bullet(item))
-                        body.append(p("Metrics:"))
-                        for item in test["metrics"]:
+                        body.append(p("Primary Metrics:"))
+                        for item in test["primary_metrics"]:
                             body.append(bullet(item))
                         add_metadata(body, test.get("implementation_metadata", {}))
                         body.append(p("Output: Standard JSON test output with score, risk_level, insight, recommendation, and metadata."))

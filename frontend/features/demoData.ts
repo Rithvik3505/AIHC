@@ -8,21 +8,51 @@ export const demoRun: WorkflowRun = {
   evaluation: {
     aggregate_score: 58,
     aggregate_risk_level: "High",
+    coverage: {
+      selected_test_count: 2,
+      completed_count: 2,
+      insufficient_evidence_count: 0,
+      not_implemented_count: 0,
+      failed_count: 0,
+      score_coverage_percentage: 100
+    },
     benchmark_indicator: {eligible: true},
     outputs: [
       {
         score: 55,
         risk_level: "High",
+        execution_status: "completed",
+        evidence_status: "valid",
+        evaluator_id: "phase2c_fraud_adversarial_attack_budget_v1",
+        raw_metrics: {severity_weighted_robustness_loss: 0.45},
+        metric_interpretation: {severity_weighted_robustness_loss: "Lower is better."},
+        sample_size: 30,
+        coverage: {records_evaluated: 30, scoreable: true},
+        thresholds: {decision_threshold: 0.5},
+        findings: ["Adversarial perturbation succeeded near the fraud threshold."],
         insight: "High Risk because adversarial perturbation succeeded near the fraud threshold.",
         recommendation: ["Harden fraud thresholds with adversarial regression tests."],
-        metadata: {pillar: "Risk", practice: "Adversarial testing", ai_system: "Fraud detection AI", test_type: "strong"}
+        limitations: ["Demo data is static and illustrative."],
+        execution_metadata: {deterministic: true},
+        metadata: {pillar: "Risk", practice: "Adversarial testing", ai_system: "Fraud detection AI", test_type: "strong", test_id: "fraud-detection-ai-adversarial-testing-st1", evaluator_id: "phase2c_fraud_adversarial_attack_budget_v1", diagnostic_family: "adversarial_robustness"}
       },
       {
         score: 64,
         risk_level: "Medium",
+        execution_status: "completed",
+        evidence_status: "valid",
+        evaluator_id: "phase2c_fraud_adversarial_threshold_evasion_v1",
+        raw_metrics: {decision_flip_rate: 0.22},
+        metric_interpretation: {decision_flip_rate: "Lower is better."},
+        sample_size: 30,
+        coverage: {records_evaluated: 30, scoreable: true},
+        thresholds: {decision_threshold: 0.5},
+        findings: ["Threshold instability detected across amount fragmentation scenarios."],
         insight: "Threshold instability detected across amount fragmentation scenarios.",
         recommendation: ["Add secondary review for low-confidence boundary cases."],
-        metadata: {pillar: "Risk", practice: "Adversarial testing", ai_system: "Fraud detection AI", test_type: "light"}
+        limitations: ["Demo data is static and illustrative."],
+        execution_metadata: {deterministic: true},
+        metadata: {pillar: "Risk", practice: "Adversarial testing", ai_system: "Fraud detection AI", test_type: "light", test_id: "fraud-detection-ai-adversarial-testing-lt1", evaluator_id: "phase2c_fraud_adversarial_threshold_evasion_v1", diagnostic_family: "adversarial_robustness"}
       }
     ]
   },

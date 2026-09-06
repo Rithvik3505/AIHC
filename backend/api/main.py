@@ -19,6 +19,14 @@ app = FastAPI(title="AI Health Check API", version="0.1.0")
 
 logger = logging.getLogger("ai_health_check.api")
 
+
+def _dump_model(model: object) -> dict:
+    if hasattr(model, "model_dump"):
+        return model.model_dump()  # type: ignore[no-any-return]
+    if hasattr(model, "dict"):
+        return model.dict()  # type: ignore[no-any-return]
+    return dict(model)  # type: ignore[arg-type]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -42,14 +50,19 @@ def evaluate(request: EvaluationRequest) -> EvaluationResponse:
         response = run_evaluation(request)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
-    benchmark_store.record(response.benchmark_indicator["distribution_key"], response.aggregate_score)
+    if response.aggregate_score is not None:
+        benchmark_store.record(response.benchmark_indicator["distribution_key"], response.aggregate_score)
     return response
 
 
 @app.post("/score")
 def score(response: EvaluationResponse) -> dict:
-    aggregate_score, aggregate_risk = aggregate_outputs(response.outputs)
-    return {"score": aggregate_score, "risk_level": aggregate_risk.value}
+    aggregate_score, aggregate_risk, coverage = aggregate_outputs(response.outputs)
+    return {
+        "score": aggregate_score,
+        "risk_level": aggregate_risk.value if aggregate_risk else None,
+        "coverage": _dump_model(coverage),
+    }
 
 
 @app.post("/generate-report", response_model=ReportResponse)
@@ -59,6 +72,8 @@ def report(request: ReportRequest) -> ReportResponse:
 
 @app.post("/benchmark")
 def benchmark(response: EvaluationResponse) -> dict:
+    if response.aggregate_score is None:
+        return {"eligible": False, "reason": "No assessable aggregate score is available."}
     key = response.benchmark_indicator["distribution_key"]
     return benchmark_store.record(key, response.aggregate_score)
 
