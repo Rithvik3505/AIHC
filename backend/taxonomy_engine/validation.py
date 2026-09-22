@@ -9,6 +9,7 @@ from typing import Any
 from backend.registries.loader import load_registry
 from backend.registries.taxonomy_sync import build_taxonomy_registry
 from backend.schemas.models import TaxonomyDefinition
+from backend.diagnostics_engine.test_specific import EVALUATOR_CONFIGS
 from backend.taxonomy_engine.diagnostic_specs import SYSTEM_CONTEXT_PROFILES
 from backend.taxonomy_engine.taxonomy import load_taxonomy
 
@@ -259,6 +260,95 @@ def validate_registry_references(taxonomy: TaxonomyDefinition | None = None) -> 
     return issues
 
 
+def validate_phase2d_registry_truth(taxonomy: TaxonomyDefinition | None = None) -> list[str]:
+    taxonomy = taxonomy or load_taxonomy()
+    workflows = load_registry("workflow_registry.json")["workflows"]
+    datasets = load_registry("dataset_registry.json")["datasets"]
+    benchmarks = load_registry("benchmark_registry.json")["benchmarks"]
+    evaluators = load_registry("evaluator_registry.json")["evaluators"]
+    issues: list[str] = []
+
+    workflow_by_id = {workflow["id"]: workflow for workflow in workflows}
+    evaluator_by_id = {evaluator["id"]: evaluator for evaluator in evaluators}
+    benchmark_by_id = {benchmark["id"]: benchmark for benchmark in benchmarks}
+    dataset_by_id = {dataset["id"]: dataset for dataset in datasets}
+    implemented_test_ids = set(EVALUATOR_CONFIGS)
+    implemented_evaluator_ids = {config.evaluator_id for config in EVALUATOR_CONFIGS.values()}
+
+    for evaluator_id in implemented_evaluator_ids:
+        if evaluator_id not in evaluator_by_id:
+            issues.append(f"Phase 2C router evaluator {evaluator_id} is missing from evaluator_registry")
+    for evaluator in evaluators:
+        supported_test_ids = evaluator.get("supported_test_ids", [])
+        if evaluator.get("implementation_status") == "Implemented":
+            if evaluator["id"] not in implemented_evaluator_ids:
+                issues.append(f"{evaluator['id']}: registry marks evaluator implemented but router does not expose it")
+            for test_id in supported_test_ids:
+                if test_id not in implemented_test_ids:
+                    issues.append(f"{evaluator['id']}: supported_test_id {test_id} is not exposed by the router")
+
+    for workflow in workflows:
+        if workflow.get("customer_upload_supported") is not False:
+            issues.append(f"{workflow['id']}: workflow must not claim customer upload support in Phase 2D")
+        if workflow.get("execution_mode") != "synthetic_demo":
+            issues.append(f"{workflow['id']}: workflow execution_mode must be synthetic_demo")
+        if "synthetic_data.generators" not in str(workflow.get("evidence_source", "")):
+            issues.append(f"{workflow['id']}: workflow evidence_source must point to synthetic data generators")
+        if "write" not in str(workflow.get("replay_behavior", "")).lower():
+            issues.append(f"{workflow['id']}: workflow replay_behavior must disclose replay writes")
+
+    customer_dataset = dataset_by_id.get("customer_dataset")
+    if customer_dataset:
+        if customer_dataset.get("customer_upload_supported") is not False:
+            issues.append("customer_dataset must disclose customer_upload_supported false")
+        if customer_dataset.get("availability_status") != "planned_contract_only":
+            issues.append("customer_dataset must remain planned_contract_only")
+        if customer_dataset.get("ingestion_method") != "not_implemented":
+            issues.append("customer_dataset ingestion_method must remain not_implemented")
+
+    for benchmark in benchmarks:
+        if benchmark.get("benchmark_type") != "illustrative_synthetic_reference":
+            issues.append(f"{benchmark['id']}: benchmark_type must be illustrative_synthetic_reference")
+        provenance = str(benchmark.get("provenance", "")).lower()
+        if "no empirical industry source" not in provenance:
+            issues.append(f"{benchmark['id']}: benchmark provenance must deny empirical industry sourcing")
+        if benchmark.get("sample_size") != len(benchmark.get("synthetic_benchmark_distribution", [])):
+            issues.append(f"{benchmark['id']}: sample_size must equal synthetic distribution length")
+
+    taxonomy_test_ids = {test["id"] for item in identity_payload(taxonomy) for test in item["tests"]}
+    for test_id, config in EVALUATOR_CONFIGS.items():
+        if test_id not in taxonomy_test_ids:
+            issues.append(f"{test_id}: router exposes a test_id absent from taxonomy")
+        if config.evaluator_id not in evaluator_by_id:
+            issues.append(f"{test_id}: router evaluator {config.evaluator_id} absent from registry")
+
+    for _, _, _, _, _, _, _, use_case in _iter_taxonomy(taxonomy):
+        for test in use_case.tests:
+            metadata = test.implementation_metadata
+            if metadata.customer_upload != "Not supported":
+                issues.append(f"{test.id}: taxonomy metadata must not claim customer upload support")
+            evaluator_id = _reference_id(metadata.evaluator_reference, "evaluator_registry")
+            if test.id in implemented_test_ids:
+                config = EVALUATOR_CONFIGS[test.id]
+                if metadata.evaluator_status != "Implemented":
+                    issues.append(f"{test.id}: routed test must disclose an implemented evaluator")
+                if evaluator_id != config.evaluator_id:
+                    issues.append(f"{test.id}: taxonomy evaluator reference {metadata.evaluator_reference} does not match router {config.evaluator_id}")
+            elif metadata.implementation_status in {"Ready", "Implemented"} or metadata.evaluator_status == "Implemented":
+                issues.append(f"{test.id}: taxonomy marks executable support but no Phase 2C evaluator is routed")
+
+            workflow_id = _reference_id(metadata.workflow_reference, "workflow_registry")
+            if workflow_id:
+                if workflow_id not in workflow_by_id:
+                    issues.append(f"{test.id}: missing workflow reference {metadata.workflow_reference}")
+
+            benchmark_id = _reference_id(metadata.benchmark_reference, "benchmark_registry")
+            if benchmark_id and benchmark_id not in benchmark_by_id:
+                issues.append(f"{test.id}: missing benchmark reference {metadata.benchmark_reference}")
+
+    return issues
+
+
 REQUIRED_BENCHMARK_MARKERS = {
     "illustrative synthetic reference distributions",
     "customer-internal historical baseline",
@@ -384,4 +474,5 @@ def validate_all(registry_path: Path | None = None) -> list[str]:
         *validate_test_differentiation(taxonomy),
         *validate_registry_sync(registry_path),
         *validate_registry_references(taxonomy),
+        *validate_phase2d_registry_truth(taxonomy),
     ]

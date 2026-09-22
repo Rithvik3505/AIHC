@@ -47,15 +47,20 @@ export type EvaluationResponse = {
 };
 
 export type WorkflowRun = {
-  workflow: Record<string, unknown>;
+  workflow: WorkflowDefinition;
   evaluation: EvaluationResponse;
   benchmark: {
-    metric: string;
+    metric: string | null;
     score: number | null;
+    eligible?: boolean;
+    reason?: string | null;
     industry_median?: number;
     top_quartile?: number;
     percentile?: number;
     distribution: number[];
+    peer_grouping?: string[];
+    provenance?: string;
+    limitations?: string[];
   };
   report: {
     title: string;
@@ -67,5 +72,94 @@ export type WorkflowRun = {
   replay: {
     replay_id: string;
     path: string;
+  };
+};
+
+export type WorkflowDefinition = {
+  id: string;
+  name: string;
+  ai_system: string;
+  pillar: string;
+  supporting_practice: string;
+  use_case: string;
+  orchestration_logic: string[];
+  supported_uploads: string[];
+  customer_upload_supported?: boolean;
+  execution_mode?: string;
+  evidence_source?: string;
+  replay_behavior?: string;
+  frontend_routing: string;
+  report_template: string;
+  implementation_status: string;
+  automation_level: string;
+};
+
+export type ImplementationMetadata = {
+  implementation_status: string;
+  workflow_status: string;
+  workflow_reference: string;
+  evaluator_status: string;
+  evaluator_reference: string;
+  evidence_type: string;
+  dataset_source: string;
+  dataset_reference: string;
+  benchmark_status: string;
+  benchmark_reference: string;
+  customer_upload: string;
+  automation_level: string;
+};
+
+export type TaxonomyTest = {
+  id: string;
+  name: string;
+  test_type: "light" | "strong";
+  objective: string;
+  inputs_required: string[];
+  preprocessing_steps: string[];
+  perturbation_strategy: string[];
+  technique: string;
+  method: string[];
+  primary_metrics: string[];
+  secondary_metrics: string[];
+  benchmark_interpretation: string[];
+  failure_criteria: string[];
+  recommendation_logic: string[];
+  implementation_metadata: ImplementationMetadata;
+};
+
+export type TaxonomyUseCase = {
+  id: string;
+  name: string;
+  description: string;
+  tests: TaxonomyTest[];
+};
+
+export type TaxonomyPractice = {
+  name: string;
+  category: "A" | "B";
+  orientation: "Horizontal" | "Hybrid";
+  meaningfulness: Record<string, number>;
+  use_cases: TaxonomyUseCase[];
+};
+
+export type TaxonomyPillar = {
+  name: string;
+  practices: TaxonomyPractice[];
+};
+
+export type TaxonomySystem = {
+  name: string;
+  typical_use: string;
+  pillars: TaxonomyPillar[];
+};
+
+export type TaxonomyRegistry = {
+  registry_name: string;
+  version: string;
+  source_of_truth?: string;
+  taxonomy: {
+    fintech_segment: string;
+    product_phase: string;
+    ai_systems: TaxonomySystem[];
   };
 };

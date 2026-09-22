@@ -30,7 +30,9 @@
       "supported_practices": ["Bias mitigation", "Fairness of model output", "Model validation", "Model accuracy", "Feature importance analysis", "Data privacy / PII protection", "Model transparency", "Glass box vs black box testing", "Human-in-the-loop", "Documentation & compliance checklists", "Residual analysis", "Outlier diagnostics", "Correlation analysis", "Clustering / anomaly analysis", "Time-series diagnostics"],
       "synthetic": false,
       "licensing": "customer_provided",
-      "ingestion_method": "frontend_upload_panel"
+      "availability_status": "planned_contract_only",
+      "customer_upload_supported": false,
+      "ingestion_method": "not_implemented"
     },
     {
       "id": "public_dataset",

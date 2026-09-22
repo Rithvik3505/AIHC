@@ -3,7 +3,21 @@ import type { WorkflowRun } from "@/schemas/types";
 export const demoRun: WorkflowRun = {
   workflow: {
     id: "fraud_adversarial_testing",
-    name: "Fraud Detection AI - Adversarial Testing"
+    name: "Fraud Detection AI - Adversarial Testing",
+    ai_system: "Fraud detection AI",
+    pillar: "Risk",
+    supporting_practice: "Adversarial testing",
+    use_case: "Fraud Detection AI Adversarial Testing",
+    orchestration_logic: ["Generate deterministic fraud demo payload", "Run implemented Phase 2C adversarial evaluators", "Return synthetic reference benchmark and report"],
+    supported_uploads: ["Synthetic transaction evidence contract"],
+    customer_upload_supported: false,
+    execution_mode: "synthetic_demo",
+    evidence_source: "backend.synthetic_data.generators.generate_fraud_adversarial_payload",
+    replay_behavior: "writes replay artifacts during normal workflow runs",
+    frontend_routing: "/evaluate?workflow=fraud_adversarial_testing",
+    report_template: "standard_health_check",
+    implementation_status: "Ready",
+    automation_level: "Assisted"
   },
   evaluation: {
     aggregate_score: 58,
@@ -59,15 +73,20 @@ export const demoRun: WorkflowRun = {
   benchmark: {
     metric: "Adversarial Robustness Score",
     score: 58,
+    eligible: true,
+    reason: null,
     industry_median: 71,
     top_quartile: 84,
     percentile: 30,
-    distribution: [42, 51, 58, 63, 68, 71, 76, 80, 84, 89]
+    distribution: [42, 51, 58, 63, 68, 71, 76, 80, 84, 89],
+    peer_grouping: ["Lendingtech", "Fraud detection AI", "Synthetic Phase 1 demo"],
+    provenance: "Internal illustrative synthetic distribution; no empirical industry source.",
+    limitations: ["Not an industry benchmark", "Not derived from anonymized customer observations"]
   },
   report: {
     title: "Demo Lendingtech Startup AI Health Check Report",
     scorecard: {aggregate_score: 58, aggregate_risk_level: "High"},
-    risk_summary: "Fraud robustness is materially below peer median and vulnerable to threshold evasion.",
+    risk_summary: "Fraud robustness is materially below the illustrative synthetic reference median and vulnerable to threshold evasion.",
     key_weaknesses: [
       "Adversarial perturbations reduced fraud scores below the escalation boundary.",
       "Boundary cases lack a confidence-aware manual review path."

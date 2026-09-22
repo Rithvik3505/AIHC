@@ -10,7 +10,11 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "source", "schema", "supported_ai_systems", "supported_practices", "synthetic", "licensing", "ingestion_method"]
+        "required": ["id", "source", "schema", "supported_ai_systems", "supported_practices", "synthetic", "licensing", "ingestion_method"],
+        "properties": {
+          "availability_status": {"type": "string"},
+          "customer_upload_supported": {"type": "boolean"}
+        }
       }
     }
   }

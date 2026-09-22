@@ -1,4 +1,4 @@
-import type { WorkflowRun } from "@/schemas/types";
+import type {TaxonomyRegistry, WorkflowDefinition, WorkflowRun} from "@/schemas/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
 
@@ -44,7 +44,7 @@ export async function runWorkflow(workflowId: string, payload?: Record<string, u
   }
 }
 
-export async function getWorkflows(): Promise<Record<string, unknown>[]> {
+export async function getWorkflows(): Promise<WorkflowDefinition[]> {
   const url = `${API_BASE}/workflows`;
   console.debug("[AI Health Check] getWorkflows request", {url, method: "GET"});
   try {
@@ -56,6 +56,19 @@ export async function getWorkflows(): Promise<Record<string, unknown>[]> {
     return response.json();
   } catch (error) {
     console.error("[AI Health Check] getWorkflows failed", {url, error});
+    throw explainFetchFailure(error, url);
+  }
+}
+
+export async function getTaxonomyRegistry(): Promise<TaxonomyRegistry> {
+  const url = `${API_BASE}/registries/taxonomy_registry`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Taxonomy registry failed (${response.status}): ${await parseError(response)}`);
+    }
+    return response.json();
+  } catch (error) {
     throw explainFetchFailure(error, url);
   }
 }

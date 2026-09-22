@@ -3,11 +3,18 @@ from __future__ import annotations
 from backend.schemas.models import EvaluationResponse, ReportResponse
 
 
+def _dump_model(model):
+    return model.model_dump() if hasattr(model, "model_dump") else model.dict()
+
+
 def generate_report(evaluation: EvaluationResponse, company_name: str | None = None) -> ReportResponse:
     scored_outputs = [output for output in evaluation.outputs if output.score is not None]
     high_risk = [output for output in scored_outputs if output.risk_level and output.risk_level.value == "High"]
     weakest = sorted(scored_outputs, key=lambda item: item.score or 101)[:3]
-    unassessable = [output for output in evaluation.outputs if output.score is None]
+    insufficient = [output for output in evaluation.outputs if output.execution_status.value == "insufficient_evidence"]
+    not_implemented = [output for output in evaluation.outputs if output.execution_status.value == "not_implemented"]
+    failed = [output for output in evaluation.outputs if output.execution_status.value == "failed"]
+    unassessable = insufficient + not_implemented + failed
     name = company_name or "Startup"
     pillar_scores: dict[str, list[int]] = {}
     for output in scored_outputs:
@@ -28,14 +35,20 @@ def generate_report(evaluation: EvaluationResponse, company_name: str | None = N
             "aggregate_score": evaluation.aggregate_score,
             "aggregate_risk_level": evaluation.aggregate_risk_level.value if evaluation.aggregate_risk_level else None,
             "tests_run": len(evaluation.outputs),
-            "coverage": evaluation.coverage.dict(),
+            "coverage": _dump_model(evaluation.coverage),
             "pillar_scores": pillar_summary,
             "why_this_score_happened": why,
             "benchmark": evaluation.benchmark_indicator,
+            "unassessable_tests": {
+                "insufficient_evidence": [output.metadata.test_id for output in insufficient],
+                "not_implemented": [output.metadata.test_id for output in not_implemented],
+                "failed": [output.metadata.test_id for output in failed],
+            },
+            "assurance_scope": "Synthetic demo evidence and deterministic MVP evaluators; not a certification.",
         },
         risk_summary=(
             f"Overall AI health score is {evaluation.aggregate_score}/100 "
-            f"with {evaluation.aggregate_risk_level.value.lower()} aggregate risk."
+            f"with {evaluation.aggregate_risk_level.value.lower()} aggregate risk, based only on assessable tests."
             if evaluation.aggregate_score is not None and evaluation.aggregate_risk_level
             else "No aggregate AI health score is available because no selected tests were assessable."
         ),

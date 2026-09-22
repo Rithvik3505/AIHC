@@ -3,12 +3,15 @@
 Initial MVP data sources:
 
 - Synthetic borrowers, transactions, documents, and support conversations.
-- German Credit and LendingClub-style public credit data for credit scoring.
-- Kaggle-style credit card fraud data for fraud diagnostics.
-- Fairlearn or COMPAS-style datasets for fairness evaluator calibration.
-- Jigsaw toxicity data for LLM response safety calibration.
+- Public dataset references such as German Credit, LendingClub-style credit
+  data, Kaggle-style fraud data, Fairlearn/COMPAS-style fairness data, and
+  Jigsaw toxicity data are manifest/planning references only unless explicitly
+  wired by executable code.
 - Synthetic temporal drift datasets for default prediction and repayment behavior.
 
 Raw external datasets should not be committed. Store dataset manifests and schema
 contracts here, then load records through privacy-preserving ingestion jobs.
 
+Customer dataset upload is a planned contract only. The current executable MVP
+uses synthetic generators and generated perturbation evidence for Golden
+Workflow demonstrations.

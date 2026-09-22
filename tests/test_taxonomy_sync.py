@@ -22,6 +22,7 @@ from backend.taxonomy_engine.validation import (
     validate_normalized_schema,
     validate_registry_references,
     validate_registry_sync,
+    validate_phase2d_registry_truth,
     validate_taxonomy_contract,
 )
 from backend.taxonomy_engine.taxonomy import load_taxonomy
@@ -91,6 +92,10 @@ def test_registry_references_are_resolvable():
 
 def test_complete_taxonomy_validation_passes():
     assert validate_all() == []
+
+
+def test_phase_2d_registry_truth_validation_passes():
+    assert validate_phase2d_registry_truth(load_taxonomy()) == []
 
 
 def test_phase_2b_specifications_are_complete_and_differentiated():

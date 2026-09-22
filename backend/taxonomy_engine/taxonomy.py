@@ -155,7 +155,6 @@ def _test_metadata(ai_system: str, practice: str, test_type: str, test_id: str |
     dataset_sources = globals().get("DATASET_SOURCES", {})
     benchmarked_practices = globals().get("BENCHMARKED_PRACTICES", set())
     partial_practices = globals().get("PARTIAL_PRACTICES", set())
-    implemented_evaluator_practices = globals().get("IMPLEMENTED_EVALUATOR_PRACTICES", set())
     dataset_references = globals().get("DATASET_REFERENCES", {})
     benchmark_references = globals().get("BENCHMARK_REFERENCES", {})
     workflow_reference = workflow_references.get((ai_system, practice))
@@ -168,14 +167,14 @@ def _test_metadata(ai_system: str, practice: str, test_type: str, test_id: str |
         "implementation_status": "Partial" if evaluator_config else ("Ready" if workflow_reference else ("Partial" if practice in partial_practices else "Planned")),
         "workflow_status": "Implemented" if workflow_reference else "Planned",
         "workflow_reference": workflow_reference or "workflow_registry:planned",
-        "evaluator_status": "Implemented" if evaluator_config or practice in implemented_evaluator_practices else "Planned",
+        "evaluator_status": "Implemented" if evaluator_config else "Planned",
         "evaluator_reference": f"evaluator_registry:{evaluator_config.evaluator_id}" if evaluator_config else evaluator_reference,
         "evidence_type": evidence_type,
         "dataset_source": dataset_source,
         "dataset_reference": dataset_references.get(dataset_source, "dataset_registry:customer_dataset"),
-        "benchmark_status": "Available" if benchmark_available else "Planned",
+        "benchmark_status": "Synthetic reference" if benchmark_available else "Planned",
         "benchmark_reference": benchmark_references.get(practice, "benchmark_registry:planned"),
-        "customer_upload": "Not supported" if evaluator_config else ("Supported" if evidence_type in {"CSV", "Prediction Log", "Prompt Log", "Conversation Transcript", "Residual File", "Time Series", "Image", "PDF"} else "Planned"),
+        "customer_upload": "Not supported",
         "automation_level": "Automated" if workflow_reference and test_type == "light" else "Assisted",
     }
 

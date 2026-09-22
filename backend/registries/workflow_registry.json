@@ -11,6 +11,10 @@
       "use_case": "Adversarial testing for fraud scoring, alerting, and suspicious behavior detection",
       "orchestration_logic": ["load synthetic fraud attacks", "run robustness evaluator", "score benchmark", "write replay", "generate report"],
       "supported_uploads": ["csv", "json"],
+      "customer_upload_supported": false,
+      "execution_mode": "synthetic_demo",
+      "evidence_source": "backend.synthetic_data.generators.synthetic_fraud_attacks",
+      "replay_behavior": "writes replay artifacts during normal workflow runs",
       "frontend_routing": "/evaluate?workflow=fraud_adversarial_testing",
       "report_template": "founder_security_diagnostic"
       ,"implementation_status": "Implemented"
@@ -25,6 +29,10 @@
       "use_case": "Bias mitigation for credit score assignment and borrower ranking",
       "orchestration_logic": ["load fairness-sensitive borrowers", "run counterfactual evaluator", "score benchmark", "write replay", "generate report"],
       "supported_uploads": ["csv", "json"],
+      "customer_upload_supported": false,
+      "execution_mode": "synthetic_demo",
+      "evidence_source": "backend.synthetic_data.generators.fairness_sensitive_samples",
+      "replay_behavior": "writes replay artifacts during normal workflow runs",
       "frontend_routing": "/evaluate?workflow=credit_bias_mitigation",
       "report_template": "founder_fairness_diagnostic"
       ,"implementation_status": "Implemented"
@@ -39,6 +47,10 @@
       "use_case": "Fairness of model output for approval, rejection, and escalation decisions",
       "orchestration_logic": ["load borrower approvals", "run counterfactual evaluator", "score benchmark", "write replay", "generate report"],
       "supported_uploads": ["csv", "json"],
+      "customer_upload_supported": false,
+      "execution_mode": "synthetic_demo",
+      "evidence_source": "backend.synthetic_data.generators.fairness_sensitive_samples",
+      "replay_behavior": "writes replay artifacts during normal workflow runs",
       "frontend_routing": "/evaluate?workflow=loan_approval_counterfactual_fairness",
       "report_template": "founder_fairness_diagnostic"
       ,"implementation_status": "Implemented"
@@ -53,6 +65,10 @@
       "use_case": "Harmful model output for borrower-facing support responses and regulated loan-servicing guidance",
       "orchestration_logic": ["load toxic conversation variants", "run safety evaluator", "score benchmark", "write replay", "generate report"],
       "supported_uploads": ["json", "prompts"],
+      "customer_upload_supported": false,
+      "execution_mode": "synthetic_demo",
+      "evidence_source": "backend.synthetic_data.generators.toxic_conversation_variants",
+      "replay_behavior": "writes replay artifacts during normal workflow runs",
       "frontend_routing": "/evaluate?workflow=support_llm_harmful_output",
       "report_template": "founder_llm_safety_diagnostic"
       ,"implementation_status": "Implemented"
@@ -67,6 +83,10 @@
       "use_case": "Residual analysis for default probability and repayment-risk forecasts",
       "orchestration_logic": ["load repayment drift sequence", "run residual evaluator", "score benchmark", "write replay", "generate report"],
       "supported_uploads": ["csv", "json"],
+      "customer_upload_supported": false,
+      "execution_mode": "synthetic_demo",
+      "evidence_source": "backend.synthetic_data.generators.synthetic_repayment_drift",
+      "replay_behavior": "writes replay artifacts during normal workflow runs",
       "frontend_routing": "/evaluate?workflow=default_residual_drift",
       "report_template": "founder_reliability_diagnostic"
       ,"implementation_status": "Implemented"
@@ -81,6 +101,10 @@
       "use_case": "Outlier diagnostics for identity verification, document checks, and onboarding decisions",
       "orchestration_logic": ["load noisy KYC records", "run data integrity evaluator", "score benchmark", "write replay", "generate report"],
       "supported_uploads": ["csv", "json"],
+      "customer_upload_supported": false,
+      "execution_mode": "synthetic_demo",
+      "evidence_source": "backend.synthetic_data.generators.noisy_ocr_documents",
+      "replay_behavior": "writes replay artifacts during normal workflow runs",
       "frontend_routing": "/evaluate?workflow=kyc_outlier_diagnostics",
       "report_template": "founder_identity_risk_diagnostic"
       ,"implementation_status": "Implemented"
