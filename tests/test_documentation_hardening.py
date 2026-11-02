@@ -141,7 +141,8 @@ def test_hld_contains_required_sections_and_mermaid_diagrams():
     for section in required_sections:
         assert f"## {section}" in text
     assert text.count("```mermaid") >= 4
-    assert "POST /workflows/{workflow_id}/run writes a replay JSON file" in text
+    assert "POST /workflows/{workflow_id}/run" in text
+    assert "writes a replay JSON file" in text
     assert "KYC does not fall back to the fraud benchmark" in text
     assert "backend/schemas/database.sql is a proposed relational schema" in text
     assert re.search(r"\| `/taxonomy` \| Live backend data", text)

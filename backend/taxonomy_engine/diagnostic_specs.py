@@ -573,9 +573,48 @@ PRACTICE_DIAGNOSTIC_BLUEPRINTS.update(
 )
 
 
+IMPLEMENTED_DIAGNOSTIC_OVERRIDES: dict[tuple[str, str, int], dict[str, Any]] = {
+    ("Fraud detection AI", "Adversarial testing", 4): {
+        "method": ["Validate attack-budget adherence and exclude invalid attacks from robustness scoring.", "Compare attack success across stages and scenarios.", "Report worst-scenario excess success and the observed record-severity range.", "Prioritize valid coordinated attacks by operational severity."],
+    },
+    ("Credit scoring AI", "Bias mitigation", 4): {
+        "technique": "equally weighted multi-factor fairness severity with observed component range",
+        "method": ["Run the protected-attribute, proxy-risk, and semantic-variant views.", "Apply equal documented weights across assessable views.", "Report the worst component and observed component-severity range.", "Keep association and causal claims explicitly separate."],
+        "secondary_metrics": [_metric("observed_component_severity_range", "minimum and maximum severity across assessable fairness views", "descriptive only"), _metric("assessable_fairness_views", "number of completed fairness views", "higher improves coverage")],
+    },
+    ("Loan approval AI", "Fairness of model output", 4): {
+        "technique": "equally weighted multi-metric fairness stress evaluation",
+        "method": ["Compute within-attribute parity, valid-denominator error gaps, and similar-applicant consistency.", "Apply equal documented weights across assessable views.", "Report the worst component and observed component-failure range.", "Retain null rates and undersized cohorts as not assessable."],
+        "secondary_metrics": [_metric("observed_component_failure_range", "minimum and maximum failure severity across assessable fairness views", "descriptive only"), _metric("assessable_metric_count", "number of completed fairness views", "higher improves coverage")],
+    },
+    ("Customer support LLM", "Harmful model output", 2): {
+        "primary_metrics": [_metric("policy_violation_rate", "responses matching declared prohibited policy patterns divided by assessed responses", "lower is better"), _metric("factual_contradiction_rate", "responses matching declared contradiction patterns divided by assessed responses", "lower is better")],
+        "secondary_metrics": [_metric("unsupported_guarantee_rate", "responses making unsupported deterministic outcome guarantees divided by assessed responses", "lower is better"), _metric("unsafe_guidance_rate", "responses containing declared unsafe guidance divided by assessed responses", "lower is better")],
+    },
+    ("Customer support LLM", "Harmful model output", 4): {
+        "method": ["Run a multi-source review across toxicity, policy/factual consistency, and prompt-context vulnerability views.", "Separate sensitive-field mentions, unsafe collection requests, and exposed sensitive values.", "Apply equal documented dimension weights and identify the worst dimension.", "Produce severity-weighted findings while preserving affected response IDs for review."],
+    },
+    ("Loan default prediction AI", "Residual analysis", 4): {
+        "technique": "multi-dimensional residual severity with observed component range",
+        "method": ["Combine multi-window temporally sorted drift, distribution shape, and supported-segment concentration views.", "Apply equal weights across assessable components.", "Report the worst component and observed component-severity range.", "Produce severity-weighted findings while keeping undersized segments outside substantive comparisons."],
+    },
+    ("KYC verification AI", "Outlier diagnostics", 2): {
+        "technique": "robust multi-feature anomaly score",
+        "method": ["Select whitelisted continuous KYC quality fields.", "Compute conventional modified-z magnitudes per field.", "Average assessable feature magnitudes per record and apply a robust observed threshold.", "Report that the score does not model covariance."],
+    },
+    ("KYC verification AI", "Outlier diagnostics", 4): {
+        "technique": "record-level multi-view anomaly overlap and severity evaluation",
+        "method": ["Run a multi-source review across modified-z, robust multi-feature, and field-constraint views.", "Collect stable record IDs flagged by each assessable detector.", "Calculate pairwise Jaccard overlap and records flagged by two or all detectors.", "Prioritize manual review using severity-weighted component and cross-detector evidence."],
+        "primary_metrics": [_metric("multi_view_outlier_risk", "weighted component severity plus record-level cross-detector overlap", "lower is better"), _metric("detector_agreement_jaccard", "mean pairwise Jaccard overlap between detector flag sets", "interpret with detector scope")],
+        "secondary_metrics": [_metric("multi_detector_flag_count", "records flagged by two or more assessable detectors", "lower is better"), _metric("all_detector_flag_count", "records flagged by every assessable detector", "lower is better")],
+    },
+}
+
+
 def build_diagnostic_spec(ai_system: str, practice: str, test_index: int) -> dict[str, Any]:
     profile = SYSTEM_CONTEXT_PROFILES[ai_system]
     blueprint = deepcopy(PRACTICE_DIAGNOSTIC_BLUEPRINTS[practice][test_index - 1])
+    blueprint.update(deepcopy(IMPLEMENTED_DIAGNOSTIC_OVERRIDES.get((ai_system, practice, test_index), {})))
     perturbation_text = blueprint["perturbation"].format(**profile)
     return {
         "objective": blueprint["objective"].format(**profile),

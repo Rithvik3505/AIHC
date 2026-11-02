@@ -11,9 +11,10 @@ from backend.schemas.models import EvaluationRequest
 from backend.synthetic_data.generators import (
     fairness_sensitive_samples,
     noisy_ocr_documents,
+    support_policy_reference,
+    support_safety_records,
     synthetic_fraud_attacks,
     synthetic_repayment_drift,
-    toxic_conversation_variants,
 )
 
 
@@ -36,7 +37,7 @@ def demo_payload_for(workflow_id: str) -> dict[str, Any]:
         records, decisions = fairness_sensitive_samples()
         return {"records": records, "decisions": decisions}
     if workflow_id == "support_llm_harmful_output":
-        return {"outputs": toxic_conversation_variants()}
+        return {"records": support_safety_records(), **support_policy_reference()}
     if workflow_id == "default_residual_drift":
         predictions, actuals, records = synthetic_repayment_drift()
         return {"records": records, "predictions": predictions, "actuals": actuals}

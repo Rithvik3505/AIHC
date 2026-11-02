@@ -228,7 +228,7 @@ Functional endpoints:
 
 Side effects:
 
-- `POST /workflows/{workflow_id}/run writes a replay JSON file` under `backend/evaluations/replays` during normal operation.
+- `POST /workflows/{workflow_id}/run` writes a replay JSON file under `backend/evaluations/replays` during normal operation.
 - `POST /benchmark` writes only to an in-memory process-local benchmark store.
 - Registry and taxonomy read endpoints do not persist data.
 
@@ -239,7 +239,7 @@ Side effects:
 | `fraud_adversarial_testing` | Fraud detection AI | Adversarial testing | `fraud-detection-ai-adversarial-testing-lt1`, `fraud-detection-ai-adversarial-testing-lt2`, `fraud-detection-ai-adversarial-testing-lt3`, `fraud-detection-ai-adversarial-testing-st1` | `synthetic_fraud_attacks` | 4 implemented | Eligible for illustrative synthetic fraud robustness benchmark | Writes local replay |
 | `credit_bias_mitigation` | Credit scoring AI | Bias mitigation | `credit-scoring-ai-bias-mitigation-lt1`, `credit-scoring-ai-bias-mitigation-lt2`, `credit-scoring-ai-bias-mitigation-lt3`, `credit-scoring-ai-bias-mitigation-st1` | `fairness_sensitive_samples` | 4 implemented | Eligible for illustrative synthetic credit fairness benchmark | Writes local replay |
 | `loan_approval_counterfactual_fairness` | Loan approval AI | Fairness of model output | `loan-approval-ai-fairness-of-model-output-lt1`, `loan-approval-ai-fairness-of-model-output-lt2`, `loan-approval-ai-fairness-of-model-output-lt3`, `loan-approval-ai-fairness-of-model-output-st1` | `fairness_sensitive_samples` | 4 implemented | Eligible for illustrative synthetic credit fairness benchmark | Writes local replay |
-| `support_llm_harmful_output` | Customer support LLM | Harmful model output | `customer-support-llm-harmful-model-output-lt1`, `customer-support-llm-harmful-model-output-lt2`, `customer-support-llm-harmful-model-output-lt3`, `customer-support-llm-harmful-model-output-st1` | `toxic_conversation_variants` | 4 implemented | Eligible for illustrative synthetic LLM safety benchmark | Writes local replay |
+| `support_llm_harmful_output` | Customer support LLM | Harmful model output | `customer-support-llm-harmful-model-output-lt1`, `customer-support-llm-harmful-model-output-lt2`, `customer-support-llm-harmful-model-output-lt3`, `customer-support-llm-harmful-model-output-st1` | `support_safety_records` plus `support_policy_reference` | 4 implemented | Eligible for illustrative synthetic LLM safety benchmark | Writes local replay |
 | `default_residual_drift` | Loan default prediction AI | Residual analysis | `loan-default-prediction-ai-residual-analysis-lt1`, `loan-default-prediction-ai-residual-analysis-lt2`, `loan-default-prediction-ai-residual-analysis-lt3`, `loan-default-prediction-ai-residual-analysis-st1` | `synthetic_repayment_drift` | 4 implemented | Eligible for illustrative synthetic residual drift benchmark | Writes local replay |
 | `kyc_outlier_diagnostics` | KYC verification AI | Outlier diagnostics | `kyc-verification-ai-outlier-diagnostics-lt1`, `kyc-verification-ai-outlier-diagnostics-lt2`, `kyc-verification-ai-outlier-diagnostics-lt3`, `kyc-verification-ai-outlier-diagnostics-st1` | `noisy_ocr_documents` | 4 implemented | Ineligible; KYC does not fall back to the fraud benchmark | Writes local replay |
 
@@ -265,6 +265,16 @@ Routing behavior:
 - If a test ID is absent from the router, the result fails closed with `execution_status: not_implemented`.
 - No practice-level fallback evaluator is used for unsupported tests.
 - The evaluator registry contains conceptual evaluator entries and concrete Phase 2C evaluator entries; only the concrete Phase 2C entries are executable by the router.
+
+Phase 2C evaluator correctness boundaries:
+
+- Fraud robustness scoring excludes attacks that violate the declared perturbation budget; labeled fraud records expose baseline FNR, attacked FNR, and their difference.
+- Credit counterfactual decisions use one explicit record/workflow threshold, proxy risk separates association from causal claims, and unknown semantic equivalence is excluded.
+- Loan parity compares cohorts only within the same attribute; undefined error rates remain null; similar-applicant scoring prioritizes decision disagreement over acceptable distance.
+- Support diagnostics consume prompt/response scenarios plus deterministic policy/fact references. Sensitive-field terminology alone is not PII leakage.
+- Residual drift sorts explicit temporal evidence before rolling-window analysis, and substantive segment comparisons require at least four observations.
+- KYC diagnostics use conventional modified-z scaling on whitelisted continuous fields, a robust multi-feature score rather than a covariance-aware claim, structural PAN checks, and record-level detector overlap.
+- Strong Tests expose component metrics and add worst-case, weighted, record-level, or cross-view analysis. They report observed ranges and do not claim bootstrap confidence intervals.
 
 ## Execution And Evidence Statuses
 

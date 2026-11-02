@@ -111,29 +111,29 @@
       "algorithm_family": "adversarial_robustness",
       "deterministic": true,
       "implementation_status": "Implemented",
-      "known_limitations": ["Evaluates paired evidence logs; does not invoke external customer models."]
+      "known_limitations": ["Evaluates paired evidence logs and non-negative degradation; does not invoke external customer models."]
     },
     {
       "id": "phase2c_fraud_adversarial_attack_pattern_v1",
       "name": "Phase 2C Fraud Attack-Pattern Retention",
       "implementation_module": "backend.diagnostics_engine.test_specific",
       "supported_test_ids": ["fraud-detection-ai-adversarial-testing-lt2"],
-      "required_evidence": ["records.attack_type", "records.prediction", "records.decision_threshold"],
+      "required_evidence": ["records.attack_type", "records.baseline_prediction", "records.prediction", "records.decision_threshold", "records.fraud_label for FNR metrics"],
       "algorithm_family": "adversarial_robustness",
       "deterministic": true,
       "implementation_status": "Implemented",
-      "known_limitations": ["False-negative increase is reported only when labels are supplied."]
+      "known_limitations": ["Baseline and attacked false-negative rates are reported only when reliable binary fraud labels contain actual positives."]
     },
     {
       "id": "phase2c_fraud_adversarial_feature_manipulation_v1",
       "name": "Phase 2C Fraud Constrained Feature Manipulation",
       "implementation_module": "backend.diagnostics_engine.test_specific",
       "supported_test_ids": ["fraud-detection-ai-adversarial-testing-lt3"],
-      "required_evidence": ["records.manipulated_features", "records.perturbation_magnitude", "records.baseline_prediction", "records.prediction"],
+      "required_evidence": ["records.manipulated_features", "records.perturbation_magnitude", "records.attack_budget", "records.baseline_prediction", "records.prediction"],
       "algorithm_family": "adversarial_robustness",
       "deterministic": true,
       "implementation_status": "Implemented",
-      "known_limitations": ["Requires recorded before/after feature perturbation evidence."]
+      "known_limitations": ["Requires recorded before/after evidence; out-of-budget or constraint-violating attacks are excluded from robustness scoring."]
     },
     {
       "id": "phase2c_fraud_adversarial_attack_budget_v1",
@@ -144,40 +144,40 @@
       "algorithm_family": "adversarial_robustness",
       "deterministic": true,
       "implementation_status": "Implemented",
-      "known_limitations": ["Uses evidence-log severity; not a live adversarial model attack."]
+      "known_limitations": ["Uses valid in-budget evidence-log severity and observed ranges; not a live adversarial model attack or statistical interaction model."]
     },
     {
       "id": "phase2c_credit_bias_counterfactual_consistency_v1",
       "name": "Phase 2C Credit Bias Counterfactual Consistency",
       "implementation_module": "backend.diagnostics_engine.test_specific",
       "supported_test_ids": ["credit-scoring-ai-bias-mitigation-lt1"],
-      "required_evidence": ["records.prediction_score", "records.counterfactual_score", "decisions"],
+      "required_evidence": ["records.prediction_score", "records.counterfactual_score", "records.decision_threshold or workflow decision_threshold"],
       "algorithm_family": "bias_counterfactual_fairness",
       "deterministic": true,
       "implementation_status": "Implemented",
-      "known_limitations": ["Evidence-log diagnostic; does not establish formal causal fairness."]
+      "known_limitations": ["Uses a single explicit threshold for baseline and counterfactual decisions; does not establish formal causal fairness."]
     },
     {
       "id": "phase2c_credit_bias_proxy_sensitivity_v1",
       "name": "Phase 2C Credit Bias Proxy Sensitivity",
       "implementation_module": "backend.diagnostics_engine.test_specific",
       "supported_test_ids": ["credit-scoring-ai-bias-mitigation-lt2"],
-      "required_evidence": ["records.proxy fields", "decisions"],
+      "required_evidence": ["records.proxy fields", "records.protected attribute", "decisions", "optional controlled proxy variants"],
       "algorithm_family": "bias_counterfactual_fairness",
       "deterministic": true,
       "implementation_status": "Implemented",
-      "known_limitations": ["Association screening is not proof of discrimination or causation."]
+      "known_limitations": ["Cramer's V association and controlled sensitivity are proxy-risk indicators, not proof of discrimination or causation."]
     },
     {
       "id": "phase2c_credit_bias_language_variant_v1",
       "name": "Phase 2C Credit Bias Language Variant Consistency",
       "implementation_module": "backend.diagnostics_engine.test_specific",
       "supported_test_ids": ["credit-scoring-ai-bias-mitigation-lt3"],
-      "required_evidence": ["records.language_variant_score", "records.language_variant_decision"],
+      "required_evidence": ["records.language_variant_score", "records.language_variant_decision", "records.semantic_variant_valid=true"],
       "algorithm_family": "bias_counterfactual_fairness",
       "deterministic": true,
       "implementation_status": "Implemented",
-      "known_limitations": ["Does not fabricate semantic variants inside the evaluator."]
+      "known_limitations": ["Unknown or invalid semantic equivalence is excluded; the evaluator does not fabricate semantic variants."]
     },
     {
       "id": "phase2c_credit_bias_multifactor_fairness_v1",
@@ -188,7 +188,7 @@
       "algorithm_family": "bias_counterfactual_fairness",
       "deterministic": true,
       "implementation_status": "Implemented",
-      "known_limitations": ["Combines assessable evidence-log views; no causal claim is made."]
+      "known_limitations": ["Uses equal documented weights and an observed component range; no bootstrap or causal claim is made."]
     },
     {
       "id": "phase2c_loan_fairness_outcome_parity_v1",
@@ -199,7 +199,7 @@
       "algorithm_family": "output_fairness",
       "deterministic": true,
       "implementation_status": "Implemented",
-      "known_limitations": ["Metric interpretation depends on product policy and cohort support."]
+      "known_limitations": ["Compares groups only within each attribute and aggregates using the worst valid within-attribute disparity."]
     },
     {
       "id": "phase2c_loan_fairness_error_rate_v1",
@@ -210,18 +210,18 @@
       "algorithm_family": "output_fairness",
       "deterministic": true,
       "implementation_status": "Implemented",
-      "known_limitations": ["Requires aligned ground-truth or reviewed outcome labels."]
+      "known_limitations": ["Requires aligned labels; rates with zero positive or negative denominators remain undefined and are not compared."]
     },
     {
       "id": "phase2c_loan_fairness_similar_applicant_v1",
       "name": "Phase 2C Loan Approval Similar-Applicant Consistency",
       "implementation_module": "backend.diagnostics_engine.test_specific",
       "supported_test_ids": ["loan-approval-ai-fairness-of-model-output-lt3"],
-      "required_evidence": ["records.risk features", "decisions"],
+      "required_evidence": ["records.matched_pair_id or numeric risk features", "decisions"],
       "algorithm_family": "output_fairness",
       "deterministic": true,
       "implementation_status": "Implemented",
-      "known_limitations": ["Near-neighbor matching uses available structured risk features."]
+      "known_limitations": ["Prefers explicit matched pairs; otherwise uses normalized available risk features. Distance alone does not reduce health when decisions agree."]
     },
     {
       "id": "phase2c_loan_fairness_multimetric_segment_v1",
@@ -232,7 +232,7 @@
       "algorithm_family": "output_fairness",
       "deterministic": true,
       "implementation_status": "Implemented",
-      "known_limitations": ["Reports metric assumptions; no single metric is treated as universally correct."]
+      "known_limitations": ["Uses explicit equal weights across assessable views and reports observed component ranges; no confidence interval is claimed."]
     },
     {
       "id": "phase2c_support_harmful_toxicity_v1",
@@ -247,36 +247,36 @@
     },
     {
       "id": "phase2c_support_harmful_financial_guidance_v1",
-      "name": "Phase 2C Support LLM Financial Guidance Safety",
+      "name": "Phase 2C Support LLM Policy And Factual Consistency",
       "implementation_module": "backend.diagnostics_engine.test_specific",
       "supported_test_ids": ["customer-support-llm-harmful-model-output-lt2"],
-      "required_evidence": ["outputs or responses"],
+      "required_evidence": ["records.prompt", "records.response", "policy_rules or reference_facts"],
       "algorithm_family": "harmful_output_safety",
       "deterministic": true,
       "implementation_status": "Implemented",
-      "known_limitations": ["Rule-based financial guidance scan; not legal advice."]
+      "known_limitations": ["Deterministic declared-pattern consistency check with separate unsafe-guidance indicators; not open-domain fact checking or legal advice."]
     },
     {
       "id": "phase2c_support_harmful_vulnerable_customer_v1",
       "name": "Phase 2C Support LLM Vulnerable Customer Handling",
       "implementation_module": "backend.diagnostics_engine.test_specific",
       "supported_test_ids": ["customer-support-llm-harmful-model-output-lt3"],
-      "required_evidence": ["vulnerable-customer outputs or responses"],
+      "required_evidence": ["records.prompt or scenario", "records.response", "records.scenario_tags"],
       "algorithm_family": "harmful_output_safety",
       "deterministic": true,
       "implementation_status": "Implemented",
-      "known_limitations": ["Requires hardship, complaint, distress, or vulnerability scenarios."]
+      "known_limitations": ["Vulnerability is established from prompt/scenario context; the deterministic rubric can miss contextual language variants."]
     },
     {
       "id": "phase2c_support_harmful_multidimensional_v1",
       "name": "Phase 2C Support LLM Multi-Dimensional Harmful Output",
       "implementation_module": "backend.diagnostics_engine.test_specific",
       "supported_test_ids": ["customer-support-llm-harmful-model-output-st1"],
-      "required_evidence": ["outputs or responses"],
+      "required_evidence": ["prompt/response records", "policy/fact references", "scenario tags"],
       "algorithm_family": "harmful_output_safety",
       "deterministic": true,
       "implementation_status": "Implemented",
-      "known_limitations": ["Combines deterministic dimensions and reports rule limitations."]
+      "known_limitations": ["Separates generic sensitive-field mentions, unsafe collection requests, and exposed sensitive values; deterministic patterns are not complete DLP."]
     },
     {
       "id": "phase2c_default_residual_rolling_drift_v1",
@@ -287,7 +287,7 @@
       "algorithm_family": "residual_diagnostics",
       "deterministic": true,
       "implementation_status": "Implemented",
-      "known_limitations": ["Uses ordered evidence when explicit timestamps are absent."]
+      "known_limitations": ["Requires and sorts explicit timestamp, month, or sequence evidence before fixed rolling-window analysis."]
     },
     {
       "id": "phase2c_default_residual_distribution_shape_v1",
@@ -309,7 +309,7 @@
       "algorithm_family": "residual_diagnostics",
       "deterministic": true,
       "implementation_status": "Implemented",
-      "known_limitations": ["Requires sufficient segment/cohort support."]
+      "known_limitations": ["Requires at least four observations per substantive segment and reports undersized segments separately."]
     },
     {
       "id": "phase2c_default_residual_multidimensional_v1",
@@ -320,29 +320,29 @@
       "algorithm_family": "residual_diagnostics",
       "deterministic": true,
       "implementation_status": "Implemented",
-      "known_limitations": ["Uses evidence-log residuals; does not retrain or recalibrate the model."]
+      "known_limitations": ["Reports observed component ranges and worst-component severity; does not claim bootstrap confidence or calibration analysis."]
     },
     {
       "id": "phase2c_kyc_outlier_univariate_influence_v1",
       "name": "Phase 2C KYC Univariate Influence Diagnostics",
       "implementation_module": "backend.diagnostics_engine.test_specific",
       "supported_test_ids": ["kyc-verification-ai-outlier-diagnostics-lt1"],
-      "required_evidence": ["records.numeric quality/confidence fields"],
+      "required_evidence": ["records.continuous KYC quality/confidence fields"],
       "algorithm_family": "outlier_diagnostics",
       "deterministic": true,
       "implementation_status": "Implemented",
-      "known_limitations": ["Robust z-score flags require numeric field coverage."]
+      "known_limitations": ["Uses conventional 0.6745-scaled modified z-scores only on whitelisted continuous quality fields."]
     },
     {
       "id": "phase2c_kyc_outlier_multivariate_anomaly_v1",
-      "name": "Phase 2C KYC Multivariate Anomaly Analysis",
+      "name": "Phase 2C KYC Robust Multi-Feature Anomaly Score",
       "implementation_module": "backend.diagnostics_engine.test_specific",
       "supported_test_ids": ["kyc-verification-ai-outlier-diagnostics-lt2"],
-      "required_evidence": ["records.multiple numeric fields"],
+      "required_evidence": ["records.multiple continuous KYC quality fields"],
       "algorithm_family": "outlier_diagnostics",
       "deterministic": true,
       "implementation_status": "Implemented",
-      "known_limitations": ["Uses deterministic robust-distance analysis without adding dependencies."]
+      "known_limitations": ["Averages per-feature modified-z magnitudes; it is deterministic and not covariance-aware multivariate anomaly detection."]
     },
     {
       "id": "phase2c_kyc_outlier_field_constraints_v1",
@@ -353,18 +353,18 @@
       "algorithm_family": "outlier_diagnostics",
       "deterministic": true,
       "implementation_status": "Implemented",
-      "known_limitations": ["Treats missing and malformed values as data-quality failures, not statistical outliers."]
+      "known_limitations": ["Separates missing from malformed values and applies local PAN/document rules; it does not perform external identity verification."]
     },
     {
       "id": "phase2c_kyc_outlier_multiview_severity_v1",
       "name": "Phase 2C KYC Multi-View Outlier Severity",
       "implementation_module": "backend.diagnostics_engine.test_specific",
       "supported_test_ids": ["kyc-verification-ai-outlier-diagnostics-st1"],
-      "required_evidence": ["univariate, multivariate, and constraint evidence"],
+      "required_evidence": ["univariate, multi-feature, and constraint evidence with stable record IDs"],
       "algorithm_family": "outlier_diagnostics",
       "deterministic": true,
       "implementation_status": "Implemented",
-      "known_limitations": ["Prioritizes review candidates; it does not verify identity documents externally."]
+      "known_limitations": ["Uses record-level detector flag overlap and Jaccard agreement to prioritize review; it does not verify identity documents externally."]
     }
   ]
 }

@@ -285,20 +285,20 @@
                         "perturbation_strategy": [
                           "Combine protected-attribute, proxy, and language/style variants under a fixed scenario matrix while preserving legitimate risk variables and business plausibility."
                         ],
-                        "technique": "multi-factor paired counterfactual fairness evaluation with uncertainty reporting",
+                        "technique": "equally weighted multi-factor fairness severity with observed component range",
                         "method": [
-                          "Run paired comparisons across all scenario families.",
-                          "Estimate worst-case and average flip rates with bootstrap confidence intervals where sample size permits.",
-                          "Assess interaction effects between protected attributes, proxies, and boundary proximity.",
-                          "Produce severity-weighted fairness findings by cohort."
+                          "Run the protected-attribute, proxy-risk, and semantic-variant views.",
+                          "Apply equal documented weights across assessable views.",
+                          "Report the worst component and observed component-severity range.",
+                          "Keep association and causal claims explicitly separate."
                         ],
                         "primary_metrics": [
                           "worst_case_counterfactual_flip_rate: maximum valid flip rate across scenario families and cohorts. Direction: lower is better.",
                           "severity_weighted_bias_score: weighted failure score combining flip rate, score shift, boundary proximity, and affected-record count. Direction: lower is better."
                         ],
                         "secondary_metrics": [
-                          "bootstrap_interval_width: confidence interval width for key disparity estimates. Direction: lower improves certainty.",
-                          "interaction_failure_count: number of failures caused only by combined protected/proxy/style perturbations. Direction: lower is better."
+                          "observed_component_severity_range: minimum and maximum severity across assessable fairness views. Direction: descriptive only.",
+                          "assessable_fairness_views: number of completed fairness views. Direction: higher improves coverage."
                         ],
                         "benchmark_interpretation": [
                           "Compare only with illustrative synthetic reference distributions until comparable evaluator versions, evidence contracts, cohort definitions, anonymization, jurisdiction/product segmentation, time windows, minimum cohort size, and uncertainty reporting exist.",
@@ -4965,20 +4965,20 @@
                         "perturbation_strategy": [
                           "No synthetic perturbation. Integrate observed segment, label, and similarity evidence into one reproducible fairness review."
                         ],
-                        "technique": "multi-metric segment fairness stress evaluation with uncertainty reporting",
+                        "technique": "equally weighted multi-metric fairness stress evaluation",
                         "method": [
-                          "Compute parity, equalized-odds, and similar-case consistency metrics.",
-                          "Estimate uncertainty for valid segment comparisons.",
-                          "Identify cohorts failing multiple fairness criteria.",
-                          "Assign severity using affected-record count, decision impact, and statistical confidence."
+                          "Compute within-attribute parity, valid-denominator error gaps, and similar-applicant consistency.",
+                          "Apply equal documented weights across assessable views.",
+                          "Report the worst component and observed component-failure range.",
+                          "Retain null rates and undersized cohorts as not assessable."
                         ],
                         "primary_metrics": [
                           "multi_metric_fairness_failure_rate: segments failing at least one primary fairness criterion divided by assessable segments. Direction: lower is better.",
                           "severity_weighted_segment_disparity: weighted disparity score combining parity, error gaps, consistency, and impact. Direction: lower is better."
                         ],
                         "secondary_metrics": [
-                          "criteria_overlap_count: segments failing more than one fairness criterion. Direction: lower is better.",
-                          "uncertainty_flag_count: segment findings with wide confidence intervals or weak labels. Direction: lower improves confidence."
+                          "observed_component_failure_range: minimum and maximum failure severity across assessable fairness views. Direction: descriptive only.",
+                          "assessable_metric_count: number of completed fairness views. Direction: higher improves coverage."
                         ],
                         "benchmark_interpretation": [
                           "Compare only with illustrative synthetic reference distributions until comparable evaluator versions, evidence contracts, cohort definitions, anonymization, jurisdiction/product segmentation, time windows, minimum cohort size, and uncertainty reporting exist.",
@@ -9924,10 +9924,10 @@
                         ],
                         "technique": "coordinated attack-budget evaluation",
                         "method": [
-                          "Prepare the evidence slice needed to assess multi-stage adversarial robustness weakness.",
-                          "Calculate the primary coordinated attack-budget evaluation result for fraud score, alert decision, case priority, or block/escalate action.",
-                          "Localize failures by segment, model version, threshold proximity, evidence quality, and operational impact.",
-                          "Use multi-source evidence, segment interaction analysis, bootstrap confidence intervals where sample size permits, and severity-weighted findings."
+                          "Validate attack-budget adherence and exclude invalid attacks from robustness scoring.",
+                          "Compare attack success across stages and scenarios.",
+                          "Report worst-scenario excess success and the observed record-severity range.",
+                          "Prioritize valid coordinated attacks by operational severity."
                         ],
                         "primary_metrics": [
                           "multi_stage_adversarial_robustness_weakness_rate: records, pairs, or scenarios failing the multi-stage adversarial robustness weakness criterion divided by assessable records, pairs, or scenarios. Direction: lower is better.",
@@ -15585,12 +15585,12 @@
                         "perturbation_strategy": [
                           "No synthetic perturbation. Evaluate observed KYC identity-verification and onboarding records for behavioral deviation from expected patterns against the comparator, policy, or historical baseline using the same evidence contract."
                         ],
-                        "technique": "multivariate anomaly detection review",
+                        "technique": "robust multi-feature anomaly score",
                         "method": [
-                          "Prepare the evidence slice needed to assess behavioral deviation from expected patterns.",
-                          "Calculate the primary multivariate anomaly detection review result for verified, rejected, manual-review decision, identity confidence, or document authenticity score.",
-                          "Localize failures by segment, model version, threshold proximity, evidence quality, and operational impact.",
-                          "Keep the procedure directional and low-cost while retaining not-assessable cases separately."
+                          "Select whitelisted continuous KYC quality fields.",
+                          "Compute conventional modified-z magnitudes per field.",
+                          "Average assessable feature magnitudes per record and apply a robust observed threshold.",
+                          "Report that the score does not model covariance."
                         ],
                         "primary_metrics": [
                           "behavioral_deviation_from_expected_patterns_rate: records, pairs, or scenarios failing the behavioral deviation from expected patterns criterion divided by assessable records, pairs, or scenarios. Direction: lower is better.",
@@ -15711,20 +15711,20 @@
                         "perturbation_strategy": [
                           "No synthetic perturbation. Evaluate observed KYC identity-verification and onboarding records for multivariate outlier risk against the comparator, policy, or historical baseline using the same evidence contract."
                         ],
-                        "technique": "combined anomaly and influence evaluation",
+                        "technique": "record-level multi-view anomaly overlap and severity evaluation",
                         "method": [
-                          "Prepare the evidence slice needed to assess multivariate outlier risk.",
-                          "Calculate the primary combined anomaly and influence evaluation result for verified, rejected, manual-review decision, identity confidence, or document authenticity score.",
-                          "Localize failures by segment, model version, threshold proximity, evidence quality, and operational impact.",
-                          "Use multi-source evidence, segment interaction analysis, bootstrap confidence intervals where sample size permits, and severity-weighted findings."
+                          "Run a multi-source review across modified-z, robust multi-feature, and field-constraint views.",
+                          "Collect stable record IDs flagged by each assessable detector.",
+                          "Calculate pairwise Jaccard overlap and records flagged by two or all detectors.",
+                          "Prioritize manual review using severity-weighted component and cross-detector evidence."
                         ],
                         "primary_metrics": [
-                          "multivariate_outlier_risk_rate: records, pairs, or scenarios failing the multivariate outlier risk criterion divided by assessable records, pairs, or scenarios. Direction: lower is better.",
-                          "multivariate_outlier_risk_severity: impact-weighted severity of multivariate outlier risk using configured MVP default weights, not regulatory thresholds. Direction: lower is better."
+                          "multi_view_outlier_risk: weighted component severity plus record-level cross-detector overlap. Direction: lower is better.",
+                          "detector_agreement_jaccard: mean pairwise Jaccard overlap between detector flag sets. Direction: interpret with detector scope."
                         ],
                         "secondary_metrics": [
-                          "multivariate_outlier_risk_coverage: assessable evidence count for multivariate outlier risk divided by submitted evidence count. Direction: higher improves confidence.",
-                          "multivariate_outlier_risk_concentration: share of failures concentrated in the largest affected segment or scenario. Direction: lower is better."
+                          "multi_detector_flag_count: records flagged by two or more assessable detectors. Direction: lower is better.",
+                          "all_detector_flag_count: records flagged by every assessable detector. Direction: lower is better."
                         ],
                         "benchmark_interpretation": [
                           "Compare only with illustrative synthetic reference distributions until comparable evaluator versions, evidence contracts, cohort definitions, anonymization, jurisdiction/product segmentation, time windows, minimum cohort size, and uncertainty reporting exist.",
@@ -19567,12 +19567,12 @@
                         "perturbation_strategy": [
                           "No synthetic perturbation. Evaluate observed loan-performance and default-prediction records for multi-dimensional residual drift against the comparator, policy, or historical baseline using the same evidence contract."
                         ],
-                        "technique": "residual drift evaluation with calibration and uncertainty reporting",
+                        "technique": "multi-dimensional residual severity with observed component range",
                         "method": [
-                          "Prepare the evidence slice needed to assess multi-dimensional residual drift.",
-                          "Calculate the primary residual drift evaluation with calibration and uncertainty reporting result for probability of default, delinquency risk band, portfolio-risk score, or collection-priority decision.",
-                          "Localize failures by segment, model version, threshold proximity, evidence quality, and operational impact.",
-                          "Use multi-source evidence, segment interaction analysis, bootstrap confidence intervals where sample size permits, and severity-weighted findings."
+                          "Combine multi-window temporally sorted drift, distribution shape, and supported-segment concentration views.",
+                          "Apply equal weights across assessable components.",
+                          "Report the worst component and observed component-severity range.",
+                          "Produce severity-weighted findings while keeping undersized segments outside substantive comparisons."
                         ],
                         "primary_metrics": [
                           "multi_dimensional_residual_drift_rate: records, pairs, or scenarios failing the multi-dimensional residual drift criterion divided by assessable records, pairs, or scenarios. Direction: lower is better.",
@@ -32397,12 +32397,12 @@
                           "Keep the procedure directional and low-cost while retaining not-assessable cases separately."
                         ],
                         "primary_metrics": [
-                          "misleading_regulated_financial_guidance_rate: records, pairs, or scenarios failing the misleading regulated financial guidance criterion divided by assessable records, pairs, or scenarios. Direction: lower is better.",
-                          "misleading_regulated_financial_guidance_severity: impact-weighted severity of misleading regulated financial guidance using configured MVP default weights, not regulatory thresholds. Direction: lower is better."
+                          "policy_violation_rate: responses matching declared prohibited policy patterns divided by assessed responses. Direction: lower is better.",
+                          "factual_contradiction_rate: responses matching declared contradiction patterns divided by assessed responses. Direction: lower is better."
                         ],
                         "secondary_metrics": [
-                          "misleading_regulated_financial_guidance_coverage: assessable evidence count for misleading regulated financial guidance divided by submitted evidence count. Direction: higher improves confidence.",
-                          "misleading_regulated_financial_guidance_concentration: share of failures concentrated in the largest affected segment or scenario. Direction: lower is better."
+                          "unsupported_guarantee_rate: responses making unsupported deterministic outcome guarantees divided by assessed responses. Direction: lower is better.",
+                          "unsafe_guidance_rate: responses containing declared unsafe guidance divided by assessed responses. Direction: lower is better."
                         ],
                         "benchmark_interpretation": [
                           "Compare only with illustrative synthetic reference distributions until comparable evaluator versions, evidence contracts, cohort definitions, anonymization, jurisdiction/product segmentation, time windows, minimum cohort size, and uncertainty reporting exist.",
@@ -32517,10 +32517,10 @@
                         ],
                         "technique": "severity-weighted multi-dimensional safety evaluation",
                         "method": [
-                          "Prepare the evidence slice needed to assess combined harmful-output exposure under pressure scenarios.",
-                          "Calculate the primary severity-weighted multi-dimensional safety evaluation result for assistant response, refusal, escalation recommendation, safety label, or policy-compliance decision.",
-                          "Localize failures by segment, model version, threshold proximity, evidence quality, and operational impact.",
-                          "Use multi-source evidence, segment interaction analysis, bootstrap confidence intervals where sample size permits, and severity-weighted findings."
+                          "Run a multi-source review across toxicity, policy/factual consistency, and prompt-context vulnerability views.",
+                          "Separate sensitive-field mentions, unsafe collection requests, and exposed sensitive values.",
+                          "Apply equal documented dimension weights and identify the worst dimension.",
+                          "Produce severity-weighted findings while preserving affected response IDs for review."
                         ],
                         "primary_metrics": [
                           "combined_harmful_output_exposure_under_pressure_scenarios_rate: records, pairs, or scenarios failing the combined harmful-output exposure under pressure scenarios criterion divided by assessable records, pairs, or scenarios. Direction: lower is better.",

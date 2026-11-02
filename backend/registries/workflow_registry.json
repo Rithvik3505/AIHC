@@ -63,11 +63,11 @@
       "pillar": "Risk",
       "supporting_practice": "Harmful model output",
       "use_case": "Harmful model output for borrower-facing support responses and regulated loan-servicing guidance",
-      "orchestration_logic": ["load toxic conversation variants", "run safety evaluator", "score benchmark", "write replay", "generate report"],
+      "orchestration_logic": ["load prompt/response safety scenarios and deterministic policy references", "run safety evaluator", "score benchmark", "write replay", "generate report"],
       "supported_uploads": ["json", "prompts"],
       "customer_upload_supported": false,
       "execution_mode": "synthetic_demo",
-      "evidence_source": "backend.synthetic_data.generators.toxic_conversation_variants",
+      "evidence_source": "backend.synthetic_data.generators.support_safety_records + support_policy_reference",
       "replay_behavior": "writes replay artifacts during normal workflow runs",
       "frontend_routing": "/evaluate?workflow=support_llm_harmful_output",
       "report_template": "founder_llm_safety_diagnostic"
