@@ -33,8 +33,8 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
               ))}
             </nav>
           </aside>
-          <main className="lg:pl-64">
-            <div className="mx-auto max-w-7xl px-5 py-6">{children}</div>
+          <main className="min-w-0 lg:pl-64">
+            <div className="mx-auto min-w-0 max-w-7xl px-5 py-6">{children}</div>
           </main>
         </div>
       </body>

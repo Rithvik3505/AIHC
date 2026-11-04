@@ -88,6 +88,12 @@ class EvidenceStatus(str, Enum):
     not_applicable = "not_applicable"
 
 
+class EvidenceMode(str, Enum):
+    demo = "demo"
+    manual = "manual"
+    upload = "upload"
+
+
 class MeaningfulnessScore(BaseModel):
     risk_criticality: int = Field(ge=0, le=5)
     founder_pain: int = Field(ge=0, le=5)
@@ -220,6 +226,19 @@ class EvaluationRequest(BaseModel):
     use_case: str
     payload: dict[str, Any] = Field(default_factory=dict)
     run_strong_test: bool = True
+    selected_test_ids: list[str] = Field(default_factory=list)
+
+
+class WorkflowRunRequest(BaseModel):
+    evidence_mode: EvidenceMode = EvidenceMode.demo
+    payload: dict[str, Any] | None = None
+    selected_test_ids: list[str] = Field(default_factory=list)
+
+
+class WorkflowValidationRequest(BaseModel):
+    evidence_mode: EvidenceMode = EvidenceMode.manual
+    payload: dict[str, Any] = Field(default_factory=dict)
+    selected_test_ids: list[str] = Field(default_factory=list)
 
 
 class EvaluationResponse(BaseModel):

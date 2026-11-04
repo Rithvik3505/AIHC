@@ -10,12 +10,17 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "benchmark_metric", "percentile_logic", "peer_grouping", "benchmark_type", "provenance", "generation_method", "sample_size", "evaluator_version_compatibility", "limitations", "synthetic_benchmark_distribution", "scoring_normalization"],
+        "required": ["id", "name", "benchmark_type", "metric", "source", "source_url", "publication", "publication_date", "version", "evaluator_version_compatibility", "applicability", "limitations", "normalization_method", "empirical", "peer_grouping", "distribution"],
         "properties": {
-          "benchmark_type": {"const": "illustrative_synthetic_reference"},
-          "sample_size": {"type": "integer", "minimum": 0},
+          "benchmark_type": {"enum": ["synthetic_reference", "external_reference", "historical_customer_baseline", "policy_threshold", "industry_peer_distribution"]},
+          "source_url": {"type": ["string", "null"]},
+          "publication_date": {"type": ["string", "null"]},
+          "normalization_method": {"type": ["string", "null"]},
+          "empirical": {"type": "boolean"},
           "limitations": {"type": "array", "items": {"type": "string"}},
-          "evaluator_version_compatibility": {"type": "array", "items": {"type": "string"}}
+          "evaluator_version_compatibility": {"type": "array", "items": {"type": "string"}},
+          "peer_grouping": {"type": "array", "items": {"type": "string"}},
+          "distribution": {"type": "array", "items": {"type": "number"}}
         }
       }
     }

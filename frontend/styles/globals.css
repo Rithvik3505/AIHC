@@ -10,6 +10,7 @@ body {
   margin: 0;
   background: #0f1720;
   color: #e7eef6;
+  overflow-x: hidden;
 }
 
 * {

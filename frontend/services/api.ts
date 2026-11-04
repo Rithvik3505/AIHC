@@ -1,4 +1,4 @@
-import type {TaxonomyRegistry, WorkflowDefinition, WorkflowRun} from "@/schemas/types";
+import type {EvidenceContract, EvidenceMode, EvidenceValidation, TaxonomyRegistry, WorkflowDefinition, WorkflowRun} from "@/schemas/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
 
@@ -24,14 +24,17 @@ function explainFetchFailure(error: unknown, url: string): Error {
   return new Error(`Unknown request failure for ${url}`);
 }
 
-export async function runWorkflow(workflowId: string, payload?: Record<string, unknown>): Promise<WorkflowRun> {
+export async function runWorkflow(
+  workflowId: string,
+  request: {evidence_mode: EvidenceMode; payload?: Record<string, unknown>; selected_test_ids: string[]}
+): Promise<WorkflowRun> {
   const url = `${API_BASE}/workflows/${workflowId}/run`;
-  console.debug("[AI Health Check] runWorkflow request", {url, method: "POST", payload: payload ?? null});
+  console.debug("[AI Health Check] runWorkflow request", {url, method: "POST", evidenceMode: request.evidence_mode});
   try {
     const response = await fetch(url, {
     method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify(payload ?? {})
+      body: JSON.stringify(request)
     });
     console.debug("[AI Health Check] runWorkflow response", {url, status: response.status, ok: response.ok});
     if (!response.ok) {
@@ -40,6 +43,48 @@ export async function runWorkflow(workflowId: string, payload?: Record<string, u
     return response.json();
   } catch (error) {
     console.error("[AI Health Check] runWorkflow failed", {url, error});
+    throw explainFetchFailure(error, url);
+  }
+}
+
+export async function getEvidenceContract(workflowId: string): Promise<EvidenceContract> {
+  const url = `${API_BASE}/workflows/${workflowId}/evidence-contract`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Evidence contract failed (${response.status}): ${await parseError(response)}`);
+    return response.json();
+  } catch (error) {
+    throw explainFetchFailure(error, url);
+  }
+}
+
+export async function validateWorkflowEvidence(
+  workflowId: string,
+  request: {evidence_mode: EvidenceMode; payload: Record<string, unknown>; selected_test_ids: string[]}
+): Promise<EvidenceValidation> {
+  const url = `${API_BASE}/workflows/${workflowId}/validate`;
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(request)
+    });
+    if (!response.ok) throw new Error(`Evidence validation failed (${response.status}): ${await parseError(response)}`);
+    return response.json();
+  } catch (error) {
+    throw explainFetchFailure(error, url);
+  }
+}
+
+export async function uploadWorkflowEvidence(workflowId: string, file: File): Promise<EvidenceValidation> {
+  const url = `${API_BASE}/workflows/${workflowId}/upload`;
+  const form = new FormData();
+  form.append("file", file);
+  try {
+    const response = await fetch(url, {method: "POST", body: form});
+    if (!response.ok) throw new Error(`Evidence upload failed (${response.status}): ${await parseError(response)}`);
+    return response.json();
+  } catch (error) {
     throw explainFetchFailure(error, url);
   }
 }

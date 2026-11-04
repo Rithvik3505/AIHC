@@ -288,14 +288,19 @@ def validate_phase2d_registry_truth(taxonomy: TaxonomyDefinition | None = None) 
                     issues.append(f"{evaluator['id']}: supported_test_id {test_id} is not exposed by the router")
 
     for workflow in workflows:
-        if workflow.get("customer_upload_supported") is not False:
-            issues.append(f"{workflow['id']}: workflow must not claim customer upload support in Phase 2D")
-        if workflow.get("execution_mode") != "synthetic_demo":
-            issues.append(f"{workflow['id']}: workflow execution_mode must be synthetic_demo")
-        if "synthetic_data.generators" not in str(workflow.get("evidence_source", "")):
-            issues.append(f"{workflow['id']}: workflow evidence_source must point to synthetic data generators")
-        if "write" not in str(workflow.get("replay_behavior", "")).lower():
-            issues.append(f"{workflow['id']}: workflow replay_behavior must disclose replay writes")
+        if workflow.get("customer_upload_supported") is not True:
+            issues.append(f"{workflow['id']}: structured manual/upload evidence support must be disclosed")
+        if workflow.get("execution_mode") != "demo_manual_upload":
+            issues.append(f"{workflow['id']}: workflow execution_mode must disclose demo, manual, and upload")
+        if workflow.get("supported_evidence_modes") != ["demo", "manual", "upload"]:
+            issues.append(f"{workflow['id']}: supported_evidence_modes are incomplete or reordered")
+        if "user-provided" not in str(workflow.get("evidence_source", "")):
+            issues.append(f"{workflow['id']}: workflow evidence_source must disclose user-provided evidence")
+        replay_behavior = str(workflow.get("replay_behavior", "")).lower()
+        if "demo" not in replay_behavior or "not persisted" not in replay_behavior:
+            issues.append(f"{workflow['id']}: workflow replay_behavior must disclose mode-specific persistence")
+        if workflow.get("raw_document_upload_supported") is not False:
+            issues.append(f"{workflow['id']}: raw document upload must remain unsupported")
 
     customer_dataset = dataset_by_id.get("customer_dataset")
     if customer_dataset:
@@ -307,13 +312,19 @@ def validate_phase2d_registry_truth(taxonomy: TaxonomyDefinition | None = None) 
             issues.append("customer_dataset ingestion_method must remain not_implemented")
 
     for benchmark in benchmarks:
-        if benchmark.get("benchmark_type") != "illustrative_synthetic_reference":
-            issues.append(f"{benchmark['id']}: benchmark_type must be illustrative_synthetic_reference")
-        provenance = str(benchmark.get("provenance", "")).lower()
-        if "no empirical industry source" not in provenance:
-            issues.append(f"{benchmark['id']}: benchmark provenance must deny empirical industry sourcing")
-        if benchmark.get("sample_size") != len(benchmark.get("synthetic_benchmark_distribution", [])):
-            issues.append(f"{benchmark['id']}: sample_size must equal synthetic distribution length")
+        benchmark_type = benchmark.get("benchmark_type")
+        if benchmark_type not in {"synthetic_reference", "external_reference", "historical_customer_baseline", "policy_threshold", "industry_peer_distribution"}:
+            issues.append(f"{benchmark['id']}: unsupported benchmark_type {benchmark_type}")
+        for field in ("metric", "source", "applicability", "limitations", "empirical", "distribution"):
+            if field not in benchmark:
+                issues.append(f"{benchmark['id']}: missing benchmark provenance field {field}")
+        if benchmark_type == "synthetic_reference":
+            if benchmark.get("empirical") is not False or not benchmark.get("distribution"):
+                issues.append(f"{benchmark['id']}: synthetic references must be non-empirical and include fixed values")
+            if not any("Not an industry benchmark" in item for item in benchmark.get("limitations", [])):
+                issues.append(f"{benchmark['id']}: synthetic reference must deny industry-benchmark status")
+        if benchmark_type == "external_reference" and not benchmark.get("source_url"):
+            issues.append(f"{benchmark['id']}: external references require a stable source_url")
 
     taxonomy_test_ids = {test["id"] for item in identity_payload(taxonomy) for test in item["tests"]}
     for test_id, config in EVALUATOR_CONFIGS.items():

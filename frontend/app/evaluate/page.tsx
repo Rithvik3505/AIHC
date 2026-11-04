@@ -2,10 +2,9 @@
 
 import {Suspense, useEffect, useMemo, useState} from "react";
 import {useSearchParams} from "next/navigation";
-import {EvaluationRunner} from "@/components/EvaluationRunner";
 import {ReportViewer} from "@/components/ReportViewer";
 import {TaxonomySelector} from "@/components/TaxonomySelector";
-import {UploadPanel} from "@/components/UploadPanel";
+import {WorkflowEvidenceWorkspace} from "@/components/WorkflowEvidenceWorkspace";
 import {Card, SectionTitle} from "@/components/ui";
 import {getWorkflows} from "@/services/api";
 import type {WorkflowDefinition, WorkflowRun} from "@/schemas/types";
@@ -38,22 +37,12 @@ function EvaluatePageContent() {
 
   return (
     <div>
-      <SectionTitle title="Run Diagnostics" subtitle="Select one registered Golden Workflow and run deterministic synthetic demo evidence through the Phase 2C evaluators." />
+      <SectionTitle title="Run Diagnostics" subtitle="Choose a Golden Workflow, validate demo or user-provided structured evidence, and inspect any of its four implemented evaluators." />
       {error ? <Card className="mb-5"><p className="text-sm text-risk">{error}</p></Card> : null}
-      <div className="grid gap-5 lg:grid-cols-[.9fr_1.1fr]">
-        <div className="space-y-5">
-          <TaxonomySelector workflows={workflows} selectedWorkflow={selectedWorkflow} onSelect={(id) => { setSelectedId(id); setRun(null); setSelectionNotice(null); }} error={selectionNotice} />
-          <UploadPanel workflow={selectedWorkflow} />
-          <EvaluationRunner workflow={selectedWorkflow} onResult={setRun} />
-        </div>
-        {run ? (
-          <ReportViewer run={run} />
-        ) : (
-          <Card>
-            <div className="text-sm font-semibold">No evaluation run yet</div>
-            <p className="mt-2 text-sm text-muted">Choose a Golden Workflow and run it to see structured Phase 2C results, coverage, findings, recommendations, limitations, and synthetic benchmark eligibility.</p>
-          </Card>
-        )}
+      <div className="space-y-5">
+        <TaxonomySelector workflows={workflows} selectedWorkflow={selectedWorkflow} onSelect={(id) => { setSelectedId(id); setRun(null); setSelectionNotice(null); }} error={selectionNotice} />
+        <WorkflowEvidenceWorkspace workflow={selectedWorkflow} onResult={setRun} />
+        {run ? <ReportViewer run={run} /> : <Card><div className="text-sm font-semibold">No evaluation run yet</div><p className="mt-2 text-sm text-muted">Validate evidence, choose the tests to run, and execute the workflow to see per-test metrics and reference provenance.</p></Card>}
       </div>
     </div>
   );

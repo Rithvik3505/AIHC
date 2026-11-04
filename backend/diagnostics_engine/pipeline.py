@@ -18,9 +18,17 @@ def run_evaluation(request: EvaluationRequest) -> EvaluationResponse:
     _, _, practice_item, use_case_item = find_use_case(
         request.ai_system, request.pillar, request.practice, request.use_case
     )
-    tests = [
+    available_tests = [
         test for test in use_case_item["tests"] if request.run_strong_test or test["test_type"] == "light"
     ]
+    available_ids = {test["id"] for test in available_tests}
+    selected_ids = set(request.selected_test_ids)
+    unknown_ids = selected_ids - available_ids
+    if unknown_ids:
+        raise ValueError(f"Selected tests do not belong to this use case: {', '.join(sorted(unknown_ids))}")
+    tests = [test for test in available_tests if not selected_ids or test["id"] in selected_ids]
+    if not tests:
+        raise ValueError("At least one test must be selected.")
 
     outputs: list[TestOutput] = []
     for test in tests:

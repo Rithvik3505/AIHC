@@ -1,6 +1,7 @@
 import type { WorkflowRun } from "@/schemas/types";
 
 export const demoRun: WorkflowRun = {
+  evidence_mode: "demo",
   workflow: {
     id: "fraud_adversarial_testing",
     name: "Fraud Detection AI - Adversarial Testing",
@@ -9,15 +10,25 @@ export const demoRun: WorkflowRun = {
     supporting_practice: "Adversarial testing",
     use_case: "Fraud Detection AI Adversarial Testing",
     orchestration_logic: ["Generate deterministic fraud demo payload", "Run implemented Phase 2C adversarial evaluators", "Return synthetic reference benchmark and report"],
-    supported_uploads: ["Synthetic transaction evidence contract"],
-    customer_upload_supported: false,
-    execution_mode: "synthetic_demo",
-    evidence_source: "backend.synthetic_data.generators.generate_fraud_adversarial_payload",
-    replay_behavior: "writes replay artifacts during normal workflow runs",
+    supported_uploads: ["csv", "json"],
+    customer_upload_supported: true,
+    supported_evidence_modes: ["demo", "manual", "upload"],
+    execution_mode: "demo_manual_upload",
+    evidence_source: "deterministic synthetic generator or ephemeral user-provided structured evidence",
+    replay_behavior: "writes replay artifacts for demo evidence only; user evidence is not persisted",
+    raw_document_upload_supported: false,
     frontend_routing: "/evaluate?workflow=fraud_adversarial_testing",
     report_template: "standard_health_check",
     implementation_status: "Ready",
     automation_level: "Assisted"
+  },
+  validation: {
+    workflow_id: "fraud_adversarial_testing",
+    can_run: true,
+    normalized_payload: {records: []},
+    issues: [],
+    tests: [],
+    limits: {maximum_file_bytes: 1000000, maximum_records: 500, maximum_prompt_or_response_characters: 10000}
   },
   evaluation: {
     aggregate_score: 58,
@@ -75,13 +86,17 @@ export const demoRun: WorkflowRun = {
     score: 58,
     eligible: true,
     reason: null,
-    industry_median: 71,
-    top_quartile: 84,
-    percentile: 30,
+    benchmark_type: "synthetic_reference",
+    synthetic_reference_median: 71,
+    synthetic_reference_top_quartile: 84,
+    synthetic_percentile: 30,
     distribution: [42, 51, 58, 63, 68, 71, 76, 80, 84, 89],
     peer_grouping: ["Lendingtech", "Fraud detection AI", "Synthetic Phase 1 demo"],
     provenance: "Internal illustrative synthetic distribution; no empirical industry source.",
-    limitations: ["Not an industry benchmark", "Not derived from anonymized customer observations"]
+    limitations: ["Not an industry benchmark", "Not derived from anonymized customer observations"],
+    external_reference_status: "Methodological external references available; no directly comparable industry distribution for the AIHC composite score.",
+    external_references: [],
+    industry_peer_distribution: {available: false, reason: "No comparable empirical industry-peer distribution is registered for this AIHC composite score."}
   },
   report: {
     title: "Demo Lendingtech Startup AI Health Check Report",
@@ -96,5 +111,5 @@ export const demoRun: WorkflowRun = {
       "Strengthen thresholds around transaction fragmentation and night velocity."
     ]
   },
-  replay: {replay_id: "demo-replay", path: "backend/evaluations/replays/demo-replay.json"}
+  replay: {replay_id: "demo-replay", path: "backend/evaluations/replays/demo-replay.json", persisted: true, reason: "Deterministic demo evidence is replayable."}
 };

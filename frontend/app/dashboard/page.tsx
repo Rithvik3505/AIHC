@@ -22,7 +22,7 @@ export default function DashboardPage() {
         </div>
         <div className="space-y-5">
           <RiskMeter score={demoRun.evaluation.aggregate_score} />
-          <BenchmarkComparison score={demoRun.benchmark.score} median={demoRun.benchmark.industry_median} topQuartile={demoRun.benchmark.top_quartile} distribution={demoRun.benchmark.distribution} provenance={demoRun.benchmark.provenance} limitations={demoRun.benchmark.limitations} />
+          <BenchmarkComparison score={demoRun.benchmark.score} median={demoRun.benchmark.synthetic_reference_median ?? undefined} topQuartile={demoRun.benchmark.synthetic_reference_top_quartile ?? undefined} percentile={demoRun.benchmark.synthetic_percentile} distribution={demoRun.benchmark.distribution} provenance={demoRun.benchmark.provenance} limitations={demoRun.benchmark.limitations} externalStatus={demoRun.benchmark.external_reference_status} industryReason={demoRun.benchmark.industry_peer_distribution?.reason} />
           <RecommendationPanel items={demoRun.report.recommended_next_steps} />
         </div>
       </div>

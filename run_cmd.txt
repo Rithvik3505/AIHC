@@ -1,6 +1,11 @@
 AI Health Check MVP run commands
 ================================
 
+Run commands from the repository root unless a section says otherwise.
+
+FIRST-TIME BACKEND SETUP
+------------------------
+
 Create and activate a Python virtual environment:
 python -m venv .venv
 .venv\Scripts\Activate.ps1
@@ -9,60 +14,84 @@ Install backend dependencies:
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 
-Run tests:
-python -m pytest -q
+FIRST-TIME FRONTEND SETUP
+-------------------------
 
-Run backend golden workflow smoke test (writes a replay JSON file):
-python -c "from backend.workflows.golden import run_workflow; r=run_workflow('fraud_adversarial_testing'); print(r['evaluation'].aggregate_score); print(r['benchmark']['industry_median']); print(r['replay']['replay_id'])"
+Install the lockfile-pinned frontend dependencies:
+cd frontend
+npm ci
+cd ..
 
-Run backend API locally:
+START THE APPLICATION
+---------------------
+
+Terminal 1 - backend API:
+$env:PYTHONDONTWRITEBYTECODE='1'
 python -m uvicorn backend.api.main:app --reload --host 127.0.0.1 --port 8000
 
-Open API docs:
-http://127.0.0.1:8000/docs
-
-Smoke test taxonomy from the terminal:
-python -c "from backend.taxonomy_engine.taxonomy import load_taxonomy, list_use_cases; print(len(load_taxonomy().ai_systems)); print(len(list_use_cases()))"
-
-Validate taxonomy, identity fingerprint, normalized schemas, registry sync, and Phase 2D truthfulness:
-python scripts\validate_taxonomy.py
-
-Regenerate the deterministic taxonomy registry:
-python scripts\sync_taxonomy_registry.py --write
-
-Check taxonomy registry drift without writing:
-python scripts\sync_taxonomy_registry.py --check
-
-Regenerate the canonical complete taxonomy DOCX and human-review pack:
-python scripts\generate_formatted_taxonomy_docx.py
-
-Smoke test evaluation pipeline from the terminal:
-python -c "from backend.diagnostics_engine.pipeline import run_evaluation; from backend.schemas.models import EvaluationRequest; r=EvaluationRequest(ai_system='Loan approval AI', pillar='Risk', practice='Fairness of model output', use_case='Loan approval fairness', payload={'records':[{'gender':'female'},{'gender':'male'}], 'decisions':[1,0]}); out=run_evaluation(r); print(out.aggregate_score); print(out.aggregate_risk_level.value); print(len(out.outputs))"
-
-Example API health check after server is running:
-curl http://127.0.0.1:8000/health
-
-Install frontend dependencies:
-cd frontend
-npm install
-
-Frontend run command after scaffold/dependencies exist:
+Terminal 2 - frontend:
 cd frontend
 npm run dev
 
-Frontend validation:
+User-testing page:
+http://127.0.0.1:3000/evaluate
+
+Backend health check:
+http://127.0.0.1:8000/health
+
+Interactive API documentation:
+http://127.0.0.1:8000/docs
+
+Golden Workflow testing guide:
+docs\GOLDEN_WORKFLOW_USER_TESTING_GUIDE.md
+
+BACKEND VALIDATION
+------------------
+
+Run the complete backend test suite without writing bytecode caches:
+$env:PYTHONDONTWRITEBYTECODE='1'
+python -m pytest -q
+
+Validate taxonomy counts, identity fingerprint, normalized schemas, and registry references:
+python scripts\validate_taxonomy.py
+
+Check deterministic taxonomy-registry drift without writing:
+python scripts\sync_taxonomy_registry.py --check
+
+Print the taxonomy identity fingerprint:
+python -c "from backend.taxonomy_engine.validation import identity_fingerprint; print(identity_fingerprint())"
+
+Expected fingerprint:
+d7f9f041248661a6e1bc551c824d9c82bd6668518b5ebca266d1e08fad905b9f
+
+FRONTEND VALIDATION
+-------------------
+
+Run from the frontend directory:
 cd frontend
 npm run type-check
 npm run lint
 npm run build
 
-Frontend URL:
-http://127.0.0.1:3000/dashboard
+GOLDEN WORKFLOW SMOKE TESTS
+---------------------------
 
-Recommended two-terminal demo:
-Terminal 1:
-python -m uvicorn backend.api.main:app --reload --host 127.0.0.1 --port 8000
+Demo-mode smoke test (intentionally writes a replay JSON file):
+python -c "from backend.workflows.golden import run_workflow; r=run_workflow('fraud_adversarial_testing'); print('score=', r['evaluation'].aggregate_score); print('synthetic_reference_median=', r['benchmark']['synthetic_reference_median']); print('replay_id=', r['replay']['replay_id'])"
 
-Terminal 2:
-cd frontend
-npm run dev
+Custom-evidence smoke test (does not write a replay file):
+python -c "from backend.workflows.evidence import example_payload_for; from backend.workflows.golden import run_workflow; w='fraud_adversarial_testing'; r=run_workflow(w, example_payload_for(w), evidence_mode='manual'); print('completed=', r['evaluation'].coverage.completed_count); print('score=', r['evaluation'].aggregate_score); print('replay_persisted=', r['replay']['persisted'])"
+
+Evidence-validation smoke test for all six workflows:
+python -c "from backend.registries.loader import registry_items; from backend.workflows.evidence import example_payload_for, validate_workflow_evidence; ids=[w['id'] for w in registry_items('workflow_registry.json','workflows')]; [print(w, [t['status'] for t in validate_workflow_evidence(w, example_payload_for(w))['tests']]) for w in ids]"
+
+TAXONOMY GENERATION - RUN ONLY WHEN INTENDED
+--------------------------------------------
+
+Regenerate the deterministic taxonomy registry:
+python scripts\sync_taxonomy_registry.py --write
+
+Regenerate the canonical complete taxonomy DOCX and human-review pack:
+python scripts\generate_formatted_taxonomy_docx.py
+
+These generation commands modify tracked artifacts. They are not required to start or test the app.

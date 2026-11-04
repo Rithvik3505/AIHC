@@ -1,4 +1,5 @@
 import {Card} from "@/components/ui";
+import {BenchmarkComparison} from "@/components/BenchmarkComparison";
 import type {TestOutput, WorkflowRun} from "@/schemas/types";
 
 function formatValue(value: unknown): string {
@@ -69,8 +70,9 @@ export function ReportViewer({run}: {run: WorkflowRun}) {
   const coverage = run.evaluation.coverage;
   const hasPartialCoverage = coverage.score_coverage_percentage < 100;
   return (
+    <div className="space-y-5">
     <Card>
-      <div className="text-sm text-muted">Synthetic Demo AI Health Report</div>
+      <div className="text-sm text-muted">{run.evidence_mode === "demo" ? "Synthetic Demo" : "User-Provided Evidence"} AI Health Report</div>
       <h2 className="mt-1 text-xl font-semibold">{run.report.title}</h2>
       <p className="mt-3 text-sm text-muted">{run.report.risk_summary}</p>
       <div className="mt-4 grid gap-3 md:grid-cols-3">
@@ -116,7 +118,10 @@ export function ReportViewer({run}: {run: WorkflowRun}) {
           </ul>
         </div>
       </div>
-      <p className="mt-4 text-xs text-muted">This report is based on synthetic demo evidence. It is not a certification, regulatory approval, or customer assurance certificate.</p>
+      <p className="mt-4 text-xs text-muted">{String(run.report.scorecard.assurance_scope ?? "This result is not a certification, regulatory approval, or customer assurance certificate.")}</p>
+      <p className="mt-2 text-xs text-muted">Replay persisted: {run.replay.persisted ? "yes" : "no"}. {run.replay.reason}</p>
     </Card>
+    <BenchmarkComparison score={run.benchmark.score} median={run.benchmark.synthetic_reference_median ?? undefined} topQuartile={run.benchmark.synthetic_reference_top_quartile ?? undefined} percentile={run.benchmark.synthetic_percentile} distribution={run.benchmark.distribution} provenance={run.benchmark.provenance} limitations={run.benchmark.limitations} externalStatus={run.benchmark.external_reference_status} externalReferences={run.benchmark.external_references} industryReason={run.benchmark.industry_peer_distribution?.reason} />
+    </div>
   );
 }

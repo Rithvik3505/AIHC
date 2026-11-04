@@ -1,6 +1,6 @@
 {
   "registry_name": "workflow_registry",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "workflows": [
     {
       "id": "fraud_adversarial_testing",
@@ -9,16 +9,18 @@
       "pillar": "Risk",
       "supporting_practice": "Adversarial testing",
       "use_case": "Adversarial testing for fraud scoring, alerting, and suspicious behavior detection",
-      "orchestration_logic": ["load synthetic fraud attacks", "run robustness evaluator", "score benchmark", "write replay", "generate report"],
+      "orchestration_logic": ["validate normalized attack records", "run selected test-specific evaluators", "compare complete runs with the AIHC synthetic reference", "persist replay only for demo evidence", "generate report"],
       "supported_uploads": ["csv", "json"],
-      "customer_upload_supported": false,
-      "execution_mode": "synthetic_demo",
-      "evidence_source": "backend.synthetic_data.generators.synthetic_fraud_attacks",
-      "replay_behavior": "writes replay artifacts during normal workflow runs",
+      "customer_upload_supported": true,
+      "supported_evidence_modes": ["demo", "manual", "upload"],
+      "execution_mode": "demo_manual_upload",
+      "evidence_source": "deterministic synthetic generator or ephemeral user-provided structured evidence",
+      "replay_behavior": "writes replay artifacts for demo evidence only; manual and uploaded evidence is not persisted",
+      "raw_document_upload_supported": false,
       "frontend_routing": "/evaluate?workflow=fraud_adversarial_testing",
-      "report_template": "founder_security_diagnostic"
-      ,"implementation_status": "Implemented"
-      ,"automation_level": "Assisted"
+      "report_template": "founder_security_diagnostic",
+      "implementation_status": "Implemented",
+      "automation_level": "Assisted"
     },
     {
       "id": "credit_bias_mitigation",
@@ -27,34 +29,38 @@
       "pillar": "Risk",
       "supporting_practice": "Bias mitigation",
       "use_case": "Bias mitigation for credit score assignment and borrower ranking",
-      "orchestration_logic": ["load fairness-sensitive borrowers", "run counterfactual evaluator", "score benchmark", "write replay", "generate report"],
+      "orchestration_logic": ["validate normalized applicant and variant records", "run selected test-specific evaluators", "compare complete runs with the AIHC synthetic reference", "persist replay only for demo evidence", "generate report"],
       "supported_uploads": ["csv", "json"],
-      "customer_upload_supported": false,
-      "execution_mode": "synthetic_demo",
-      "evidence_source": "backend.synthetic_data.generators.fairness_sensitive_samples",
-      "replay_behavior": "writes replay artifacts during normal workflow runs",
+      "customer_upload_supported": true,
+      "supported_evidence_modes": ["demo", "manual", "upload"],
+      "execution_mode": "demo_manual_upload",
+      "evidence_source": "deterministic synthetic generator or ephemeral user-provided structured evidence",
+      "replay_behavior": "writes replay artifacts for demo evidence only; manual and uploaded evidence is not persisted",
+      "raw_document_upload_supported": false,
       "frontend_routing": "/evaluate?workflow=credit_bias_mitigation",
-      "report_template": "founder_fairness_diagnostic"
-      ,"implementation_status": "Implemented"
-      ,"automation_level": "Assisted"
+      "report_template": "founder_fairness_diagnostic",
+      "implementation_status": "Implemented",
+      "automation_level": "Assisted"
     },
     {
       "id": "loan_approval_counterfactual_fairness",
-      "name": "Loan Approval AI - Counterfactual Fairness",
+      "name": "Loan Approval AI - Output Fairness",
       "ai_system": "Loan approval AI",
       "pillar": "Risk",
       "supporting_practice": "Fairness of model output",
       "use_case": "Fairness of model output for approval, rejection, and escalation decisions",
-      "orchestration_logic": ["load borrower approvals", "run counterfactual evaluator", "score benchmark", "write replay", "generate report"],
+      "orchestration_logic": ["validate normalized applicant, decision, and label records", "run selected test-specific evaluators", "compare complete runs with the AIHC synthetic reference", "persist replay only for demo evidence", "generate report"],
       "supported_uploads": ["csv", "json"],
-      "customer_upload_supported": false,
-      "execution_mode": "synthetic_demo",
-      "evidence_source": "backend.synthetic_data.generators.fairness_sensitive_samples",
-      "replay_behavior": "writes replay artifacts during normal workflow runs",
+      "customer_upload_supported": true,
+      "supported_evidence_modes": ["demo", "manual", "upload"],
+      "execution_mode": "demo_manual_upload",
+      "evidence_source": "deterministic synthetic generator or ephemeral user-provided structured evidence",
+      "replay_behavior": "writes replay artifacts for demo evidence only; manual and uploaded evidence is not persisted",
+      "raw_document_upload_supported": false,
       "frontend_routing": "/evaluate?workflow=loan_approval_counterfactual_fairness",
-      "report_template": "founder_fairness_diagnostic"
-      ,"implementation_status": "Implemented"
-      ,"automation_level": "Assisted"
+      "report_template": "founder_fairness_diagnostic",
+      "implementation_status": "Implemented",
+      "automation_level": "Assisted"
     },
     {
       "id": "support_llm_harmful_output",
@@ -63,16 +69,18 @@
       "pillar": "Risk",
       "supporting_practice": "Harmful model output",
       "use_case": "Harmful model output for borrower-facing support responses and regulated loan-servicing guidance",
-      "orchestration_logic": ["load prompt/response safety scenarios and deterministic policy references", "run safety evaluator", "score benchmark", "write replay", "generate report"],
-      "supported_uploads": ["json", "prompts"],
-      "customer_upload_supported": false,
-      "execution_mode": "synthetic_demo",
-      "evidence_source": "backend.synthetic_data.generators.support_safety_records + support_policy_reference",
-      "replay_behavior": "writes replay artifacts during normal workflow runs",
+      "orchestration_logic": ["validate prompt-response records and deterministic references", "run selected test-specific evaluators", "compare complete runs with the AIHC synthetic reference", "persist replay only for demo evidence", "generate report"],
+      "supported_uploads": ["csv", "json"],
+      "customer_upload_supported": true,
+      "supported_evidence_modes": ["demo", "manual", "upload"],
+      "execution_mode": "demo_manual_upload",
+      "evidence_source": "deterministic synthetic generator or ephemeral user-provided structured prompt-response evidence",
+      "replay_behavior": "writes replay artifacts for demo evidence only; manual and uploaded evidence is not persisted",
+      "raw_document_upload_supported": false,
       "frontend_routing": "/evaluate?workflow=support_llm_harmful_output",
-      "report_template": "founder_llm_safety_diagnostic"
-      ,"implementation_status": "Implemented"
-      ,"automation_level": "Assisted"
+      "report_template": "founder_llm_safety_diagnostic",
+      "implementation_status": "Implemented",
+      "automation_level": "Assisted"
     },
     {
       "id": "default_residual_drift",
@@ -81,16 +89,18 @@
       "pillar": "Reliability",
       "supporting_practice": "Residual analysis",
       "use_case": "Residual analysis for default probability and repayment-risk forecasts",
-      "orchestration_logic": ["load repayment drift sequence", "run residual evaluator", "score benchmark", "write replay", "generate report"],
+      "orchestration_logic": ["validate ordered prediction and outcome records", "run selected test-specific evaluators", "compare complete runs with the AIHC synthetic reference", "persist replay only for demo evidence", "generate report"],
       "supported_uploads": ["csv", "json"],
-      "customer_upload_supported": false,
-      "execution_mode": "synthetic_demo",
-      "evidence_source": "backend.synthetic_data.generators.synthetic_repayment_drift",
-      "replay_behavior": "writes replay artifacts during normal workflow runs",
+      "customer_upload_supported": true,
+      "supported_evidence_modes": ["demo", "manual", "upload"],
+      "execution_mode": "demo_manual_upload",
+      "evidence_source": "deterministic synthetic generator or ephemeral user-provided structured evidence",
+      "replay_behavior": "writes replay artifacts for demo evidence only; manual and uploaded evidence is not persisted",
+      "raw_document_upload_supported": false,
       "frontend_routing": "/evaluate?workflow=default_residual_drift",
-      "report_template": "founder_reliability_diagnostic"
-      ,"implementation_status": "Implemented"
-      ,"automation_level": "Assisted"
+      "report_template": "founder_reliability_diagnostic",
+      "implementation_status": "Implemented",
+      "automation_level": "Assisted"
     },
     {
       "id": "kyc_outlier_diagnostics",
@@ -99,16 +109,18 @@
       "pillar": "Data Integrity",
       "supporting_practice": "Outlier diagnostics",
       "use_case": "Outlier diagnostics for identity verification, document checks, and onboarding decisions",
-      "orchestration_logic": ["load noisy KYC records", "run data integrity evaluator", "score benchmark", "write replay", "generate report"],
+      "orchestration_logic": ["validate structured KYC quality and identity records", "run selected test-specific evaluators", "show benchmark-unavailable state with external subcomponent references", "persist replay only for demo evidence", "generate report"],
       "supported_uploads": ["csv", "json"],
-      "customer_upload_supported": false,
-      "execution_mode": "synthetic_demo",
-      "evidence_source": "backend.synthetic_data.generators.noisy_ocr_documents",
-      "replay_behavior": "writes replay artifacts during normal workflow runs",
+      "customer_upload_supported": true,
+      "supported_evidence_modes": ["demo", "manual", "upload"],
+      "execution_mode": "demo_manual_upload",
+      "evidence_source": "deterministic synthetic generator or ephemeral user-provided structured KYC evidence",
+      "replay_behavior": "writes replay artifacts for demo evidence only; manual and uploaded evidence is not persisted",
+      "raw_document_upload_supported": false,
       "frontend_routing": "/evaluate?workflow=kyc_outlier_diagnostics",
-      "report_template": "founder_identity_risk_diagnostic"
-      ,"implementation_status": "Implemented"
-      ,"automation_level": "Assisted"
+      "report_template": "founder_identity_risk_diagnostic",
+      "implementation_status": "Implemented",
+      "automation_level": "Assisted"
     }
   ]
 }

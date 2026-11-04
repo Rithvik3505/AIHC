@@ -2,6 +2,7 @@
 
 import {Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
 import {Card} from "@/components/ui";
+import type {BenchmarkReference} from "@/schemas/types";
 
 export function BenchmarkComparison({
   score,
@@ -9,7 +10,11 @@ export function BenchmarkComparison({
   topQuartile,
   distribution,
   provenance,
-  limitations
+  limitations,
+  percentile,
+  externalStatus,
+  externalReferences,
+  industryReason
 }: {
   score: number | null;
   median?: number;
@@ -17,6 +22,10 @@ export function BenchmarkComparison({
   distribution: number[];
   provenance?: string;
   limitations?: string[];
+  percentile?: number | null;
+  externalStatus?: string;
+  externalReferences?: BenchmarkReference[];
+  industryReason?: string;
 }) {
   const data = distribution.map((value, index) => ({peer: index + 1, score: value}));
   const hasDistribution = data.length > 0;
@@ -27,7 +36,7 @@ export function BenchmarkComparison({
         <div>
           <div className="text-sm font-semibold">Synthetic Reference Comparison</div>
           <div className="mt-1 text-sm text-muted">
-            Illustrative synthetic median {median ?? "N/A"} / synthetic top quartile {topQuartile ?? "N/A"}
+            AIHC synthetic median {median ?? "N/A"} / top quartile {topQuartile ?? "N/A"} / percentile {percentile ?? "N/A"}
           </div>
         </div>
         <div className="rounded-md bg-signal/10 px-3 py-2 text-sm text-signal">You: {score === null ? "N/A" : score}</div>
@@ -51,6 +60,12 @@ export function BenchmarkComparison({
       </div>
       {provenance ? <p className="mt-3 text-xs text-muted">{provenance}</p> : null}
       {limitations?.length ? <p className="mt-2 text-xs text-muted">{limitations.join(" / ")}</p> : null}
+      <div className="mt-4 border-t border-white/10 pt-4">
+        <div className="text-sm font-semibold">External / Industry Reference</div>
+        <p className="mt-1 text-sm text-muted">{externalStatus ?? industryReason ?? "No external reference status is available."}</p>
+        {industryReason ? <p className="mt-2 text-xs text-warning">Industry peer distribution unavailable: {industryReason}</p> : null}
+        {externalReferences?.map((reference) => <div className="mt-3 rounded-md border border-white/10 p-3" key={reference.id}><div className="text-sm font-medium">{reference.name}</div><p className="mt-1 text-xs text-muted">{reference.applicability}</p>{reference.source_url ? <a className="mt-2 inline-block text-xs text-signal underline" href={reference.source_url} target="_blank" rel="noreferrer">{reference.source} / {reference.publication}</a> : null}<p className="mt-2 text-xs text-muted">{reference.limitations.join(" / ")}</p></div>)}
+      </div>
     </Card>
   );
 }

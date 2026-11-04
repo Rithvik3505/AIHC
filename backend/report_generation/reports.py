@@ -7,7 +7,11 @@ def _dump_model(model):
     return model.model_dump() if hasattr(model, "model_dump") else model.dict()
 
 
-def generate_report(evaluation: EvaluationResponse, company_name: str | None = None) -> ReportResponse:
+def generate_report(
+    evaluation: EvaluationResponse,
+    company_name: str | None = None,
+    assurance_scope: str = "Synthetic demo evidence and deterministic MVP evaluators; not a certification.",
+) -> ReportResponse:
     scored_outputs = [output for output in evaluation.outputs if output.score is not None]
     high_risk = [output for output in scored_outputs if output.risk_level and output.risk_level.value == "High"]
     weakest = sorted(scored_outputs, key=lambda item: item.score or 101)[:3]
@@ -44,7 +48,7 @@ def generate_report(evaluation: EvaluationResponse, company_name: str | None = N
                 "not_implemented": [output.metadata.test_id for output in not_implemented],
                 "failed": [output.metadata.test_id for output in failed],
             },
-            "assurance_scope": "Synthetic demo evidence and deterministic MVP evaluators; not a certification.",
+            "assurance_scope": assurance_scope,
         },
         risk_summary=(
             f"Overall AI health score is {evaluation.aggregate_score}/100 "

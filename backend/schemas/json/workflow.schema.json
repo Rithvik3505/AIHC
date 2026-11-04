@@ -10,12 +10,14 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "name", "ai_system", "pillar", "supporting_practice", "use_case", "orchestration_logic", "supported_uploads", "customer_upload_supported", "execution_mode", "evidence_source", "replay_behavior", "frontend_routing", "report_template", "implementation_status", "automation_level"],
+        "required": ["id", "name", "ai_system", "pillar", "supporting_practice", "use_case", "orchestration_logic", "supported_uploads", "customer_upload_supported", "supported_evidence_modes", "execution_mode", "evidence_source", "replay_behavior", "raw_document_upload_supported", "frontend_routing", "report_template", "implementation_status", "automation_level"],
         "properties": {
-          "customer_upload_supported": {"const": false},
-          "execution_mode": {"const": "synthetic_demo"},
+          "customer_upload_supported": {"const": true},
+          "supported_evidence_modes": {"type": "array", "const": ["demo", "manual", "upload"]},
+          "execution_mode": {"const": "demo_manual_upload"},
+          "raw_document_upload_supported": {"const": false},
           "orchestration_logic": {"type": "array", "items": {"type": "string"}},
-          "supported_uploads": {"type": "array", "items": {"type": "string"}}
+          "supported_uploads": {"type": "array", "items": {"enum": ["csv", "json"]}}
         }
       }
     }

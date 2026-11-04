@@ -2,7 +2,7 @@
 
 ## Document Purpose And Status
 
-This High-Level Design describes the implemented Phase 2D state of the Lendingtech AI Health Check MVP. It is an implementation-facing document for maintainers, reviewers, and advisors who need to understand what the repository actually does today.
+This High-Level Design describes the implemented Phase 2D foundation plus the Golden Workflow user-testing and benchmark-provenance hardening state of the Lendingtech AI Health Check MVP. It is an implementation-facing document for maintainers, reviewers, and advisors who need to understand what the repository actually does today.
 
 The source of truth is executable code and canonical registries, not aspirational roadmap text. Future capabilities are identified only in the Future Architecture section.
 
@@ -18,14 +18,15 @@ Implemented scope:
 - 130 meaningful use cases.
 - 520 normalized diagnostic test specifications.
 - 24 executable test-specific Phase 2C evaluators across six Golden Workflows.
-- Deterministic synthetic demo evidence for workflow execution.
-- Local JSON replay artifacts for normal workflow runs.
+- Deterministic synthetic demo evidence plus ephemeral manual, CSV, and JSON evidence for workflow execution.
+- Pre-execution evidence validation and individual LT1/LT2/LT3/ST1 selection.
+- Local JSON replay artifacts for demo workflow runs only.
 - Illustrative synthetic benchmark distributions for eligible workflows.
 - Next.js frontend for dashboard, workflow execution, reports, taxonomy browsing, and synthetic benchmark review.
 
 Explicit non-goals in the current implementation:
 
-- No customer evidence upload endpoint.
+- No raw PDF/image document extraction or OCR pipeline.
 - No arbitrary frontend evaluation builder for user-selected AI system, Pillar, practice, and use case.
 - No PostgreSQL-backed production persistence.
 - No authentication or authorization.
@@ -77,7 +78,7 @@ flowchart LR
     API[FastAPI Backend]
     Taxonomy[Executable Taxonomy]
     Registries[Canonical Registries]
-    Synthetic[Synthetic Evidence Generators]
+    Evidence[Synthetic / Manual / CSV / JSON Evidence]
     Replay[Local JSON Replays]
     Docs[Generated DOCX Documents]
 
@@ -85,13 +86,13 @@ flowchart LR
     Frontend --> API
     API --> Taxonomy
     API --> Registries
-    API --> Synthetic
+    API --> Evidence
     API --> Replay
     Taxonomy --> Registries
     Registries --> Docs
 ```
 
-The system is local/demo-oriented. It does not ingest customer files or connect to a production data store.
+The system is local/MVP-oriented. It accepts structured evidence ephemerally but does not persist user evidence, extract raw identity documents, or connect to a production data store.
 
 ## Component Architecture
 
@@ -114,12 +115,15 @@ flowchart TB
         BenchEngine[benchmark_engine/distributions.py]
         Workflows[workflows/golden.py]
         ReplayStore[evaluations/replay_store.py]
+        EvidenceLayer[workflows/evidence.py]
         Sync[registries/taxonomy_sync.py]
     end
 
     Frontend --> API
     API --> Pipeline
     API --> Workflows
+    API --> EvidenceLayer
+    EvidenceLayer --> Router
     Workflows --> Pipeline
     Pipeline --> Router
     Pipeline --> Scoring
@@ -143,11 +147,14 @@ sequenceDiagram
     participant G as Report Generator
     participant S as Replay Store
 
-    U->>F: Select one Golden Workflow
+    U->>F: Select workflow, evidence mode, and test scope
+    F->>A: GET evidence contract / optional POST upload
+    A-->>F: Fields, template, parsed evidence
+    F->>A: POST /workflows/{workflow_id}/validate
+    A-->>F: Per-test readiness and normalized payload
     F->>A: POST /workflows/{workflow_id}/run
-    A->>W: run_workflow(workflow_id)
-    W->>W: Build deterministic synthetic payload
-    W->>P: EvaluationRequest
+    A->>W: run_workflow(mode, payload, selected test IDs)
+    W->>P: EvaluationRequest with validated evidence
     P->>R: Route each selected test ID
     R-->>P: Completed or not_implemented TestOutput
     P-->>W: EvaluationResponse
@@ -155,8 +162,12 @@ sequenceDiagram
     B-->>W: Synthetic reference or ineligible result
     W->>G: generate_report
     G-->>W: ReportResponse
-    W->>S: write_replay
-    S-->>W: replay metadata
+    alt Demo evidence
+        W->>S: write_replay
+        S-->>W: replay metadata
+    else Manual or uploaded evidence
+        W-->>W: Disable replay persistence
+    end
     W-->>A: workflow run bundle
     A-->>F: JSON response
 ```
@@ -198,6 +209,7 @@ flowchart LR
 - `backend/benchmark_engine/distributions.py`: illustrative synthetic benchmark comparison and benchmark ineligibility behavior.
 - `backend/report_generation/reports.py`: founder-readable report and scorecard summary generation.
 - `backend/workflows/golden.py`: six Golden Workflow orchestration paths.
+- `backend/workflows/evidence.py`: workflow-specific contracts, CSV/JSON parsing, limits, normalization, and per-test readiness validation.
 - `backend/evaluations/replay_store.py`: local JSON replay writes.
 - `backend/synthetic_data/generators.py`: deterministic synthetic evidence payloads.
 
@@ -206,7 +218,7 @@ flowchart LR
 | Route | Data source | Operational behavior | Known limitation |
 | --- | --- | --- | --- |
 | `/dashboard` | Static demo data | Shows synthetic score, risk, pillar, insight, recommendation, and benchmark widgets | Not live and not persisted customer evidence |
-| `/evaluate` | Live backend data | Loads six workflows, lets user select one, runs `POST /workflows/{workflow_id}/run`, displays returned report | Synthetic workflow payloads only; no file upload |
+| `/evaluate` | Live backend data | Selects a workflow; supports demo, manual, CSV, and JSON evidence; validates per test; runs all four or one selected test; displays results and provenance | No raw PDF/image extraction; user evidence is ephemeral |
 | `/reports` | Static demo data | Shows expanded report viewer using the demo run shape | Live reports are shown after running `/evaluate` |
 | `/taxonomy` | Live backend data | Browses `GET /registries/taxonomy_registry` and normalized diagnostic fields | Large registry response rendered client-side |
 | `/benchmarks` | Static demo data | Shows illustrative synthetic benchmark view | No empirical peer benchmark data |
@@ -220,15 +232,19 @@ Functional endpoints:
 - `GET /use-cases`: returns taxonomy use cases.
 - `GET /tests`: returns taxonomy tests.
 - `GET /workflows`: returns workflow registry entries.
+- `GET /workflows/{workflow_id}/evidence-contract`: returns user-facing fields, limits, tests, privacy rules, and a synthetic template.
+- `POST /workflows/{workflow_id}/validate`: normalizes evidence and reports readiness per selected evaluator.
+- `POST /workflows/{workflow_id}/upload`: parses UTF-8 CSV or JSON structured evidence up to the configured size/row limits.
 - `POST /evaluate`: executes selected taxonomy tests for an explicit request.
 - `POST /score`: returns aggregate scoring for an evaluation response.
 - `POST /generate-report`: returns a report for an evaluation response.
 - `POST /benchmark`: records process-local benchmark values.
-- `POST /workflows/{workflow_id}/run`: runs one Golden Workflow.
+- `POST /workflows/{workflow_id}/run`: runs all four or one selected test with demo, manual, or uploaded evidence.
 
 Side effects:
 
-- `POST /workflows/{workflow_id}/run` writes a replay JSON file under `backend/evaluations/replays` during normal operation.
+- Demo-mode `POST /workflows/{workflow_id}/run` writes a replay JSON file under `backend/evaluations/replays`.
+- Manual and upload-mode runs do not persist replay input or raw evidence.
 - `POST /benchmark` writes only to an in-memory process-local benchmark store.
 - Registry and taxonomy read endpoints do not persist data.
 
@@ -236,12 +252,12 @@ Side effects:
 
 | Workflow ID | AI system | Supporting Practice | Test IDs | Evidence source | Evaluator status | Benchmark eligibility | Replay behavior |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `fraud_adversarial_testing` | Fraud detection AI | Adversarial testing | `fraud-detection-ai-adversarial-testing-lt1`, `fraud-detection-ai-adversarial-testing-lt2`, `fraud-detection-ai-adversarial-testing-lt3`, `fraud-detection-ai-adversarial-testing-st1` | `synthetic_fraud_attacks` | 4 implemented | Eligible for illustrative synthetic fraud robustness benchmark | Writes local replay |
-| `credit_bias_mitigation` | Credit scoring AI | Bias mitigation | `credit-scoring-ai-bias-mitigation-lt1`, `credit-scoring-ai-bias-mitigation-lt2`, `credit-scoring-ai-bias-mitigation-lt3`, `credit-scoring-ai-bias-mitigation-st1` | `fairness_sensitive_samples` | 4 implemented | Eligible for illustrative synthetic credit fairness benchmark | Writes local replay |
-| `loan_approval_counterfactual_fairness` | Loan approval AI | Fairness of model output | `loan-approval-ai-fairness-of-model-output-lt1`, `loan-approval-ai-fairness-of-model-output-lt2`, `loan-approval-ai-fairness-of-model-output-lt3`, `loan-approval-ai-fairness-of-model-output-st1` | `fairness_sensitive_samples` | 4 implemented | Eligible for illustrative synthetic credit fairness benchmark | Writes local replay |
-| `support_llm_harmful_output` | Customer support LLM | Harmful model output | `customer-support-llm-harmful-model-output-lt1`, `customer-support-llm-harmful-model-output-lt2`, `customer-support-llm-harmful-model-output-lt3`, `customer-support-llm-harmful-model-output-st1` | `support_safety_records` plus `support_policy_reference` | 4 implemented | Eligible for illustrative synthetic LLM safety benchmark | Writes local replay |
-| `default_residual_drift` | Loan default prediction AI | Residual analysis | `loan-default-prediction-ai-residual-analysis-lt1`, `loan-default-prediction-ai-residual-analysis-lt2`, `loan-default-prediction-ai-residual-analysis-lt3`, `loan-default-prediction-ai-residual-analysis-st1` | `synthetic_repayment_drift` | 4 implemented | Eligible for illustrative synthetic residual drift benchmark | Writes local replay |
-| `kyc_outlier_diagnostics` | KYC verification AI | Outlier diagnostics | `kyc-verification-ai-outlier-diagnostics-lt1`, `kyc-verification-ai-outlier-diagnostics-lt2`, `kyc-verification-ai-outlier-diagnostics-lt3`, `kyc-verification-ai-outlier-diagnostics-st1` | `noisy_ocr_documents` | 4 implemented | Ineligible; KYC does not fall back to the fraud benchmark | Writes local replay |
+| `fraud_adversarial_testing` | Fraud detection AI | Adversarial testing | `fraud-detection-ai-adversarial-testing-lt1`, `fraud-detection-ai-adversarial-testing-lt2`, `fraud-detection-ai-adversarial-testing-lt3`, `fraud-detection-ai-adversarial-testing-st1` | Synthetic or structured attack records | 4 implemented | AIHC synthetic reference for complete runs; NIST methodology context; no industry distribution | Demo only |
+| `credit_bias_mitigation` | Credit scoring AI | Bias mitigation | `credit-scoring-ai-bias-mitigation-lt1`, `credit-scoring-ai-bias-mitigation-lt2`, `credit-scoring-ai-bias-mitigation-lt3`, `credit-scoring-ai-bias-mitigation-st1` | Synthetic or structured applicant/variant records | 4 implemented | AIHC synthetic reference plus regulatory context; no universal industry distribution | Demo only |
+| `loan_approval_counterfactual_fairness` | Loan approval AI | Fairness of model output | `loan-approval-ai-fairness-of-model-output-lt1`, `loan-approval-ai-fairness-of-model-output-lt2`, `loan-approval-ai-fairness-of-model-output-lt3`, `loan-approval-ai-fairness-of-model-output-st1` | Synthetic or structured applicant/label records | 4 implemented | AIHC synthetic reference plus fair-lending context; no universal industry distribution | Demo only |
+| `support_llm_harmful_output` | Customer support LLM | Harmful model output | `customer-support-llm-harmful-model-output-lt1`, `customer-support-llm-harmful-model-output-lt2`, `customer-support-llm-harmful-model-output-lt3`, `customer-support-llm-harmful-model-output-st1` | Synthetic or structured prompt/response records and references | 4 implemented | AIHC synthetic reference plus NIST methodology; no lending peer distribution | Demo only |
+| `default_residual_drift` | Loan default prediction AI | Residual analysis | `loan-default-prediction-ai-residual-analysis-lt1`, `loan-default-prediction-ai-residual-analysis-lt2`, `loan-default-prediction-ai-residual-analysis-lt3`, `loan-default-prediction-ai-residual-analysis-st1` | Synthetic or structured ordered outcome records | 4 implemented | AIHC synthetic reference plus model-risk guidance; no composite peer distribution | Demo only |
+| `kyc_outlier_diagnostics` | KYC verification AI | Outlier diagnostics | `kyc-verification-ai-outlier-diagnostics-lt1`, `kyc-verification-ai-outlier-diagnostics-lt2`, `kyc-verification-ai-outlier-diagnostics-lt3`, `kyc-verification-ai-outlier-diagnostics-st1` | Synthetic or structured KYC records | 4 implemented | No AIHC synthetic mapping; biometric/regulatory references only; no overall industry score | Demo only |
 
 ## Evidence And Dataset-Origin Model
 
@@ -249,11 +265,12 @@ Evidence origins:
 
 - Synthetic demo generators are executable and used by Golden Workflows.
 - Generated perturbation evidence is represented in registries and taxonomy metadata.
-- Customer dataset is a planned contract only.
+- Structured manual/CSV/JSON records are accepted ephemerally for the six Golden Workflows.
+- The registry `customer_dataset` remains a planned durable dataset integration; workflow ingestion does not create a dataset or persistence layer.
 - Public datasets are manifest/planning references unless executable code imports them.
 - Benchmark dataset refers to fixed synthetic distributions.
 
-Customer-data upload is not implemented. The frontend upload panel describes evidence contracts but does not send files.
+Raw PDF/image document upload and OCR are not implemented. Structured uploads are validated in memory and are not added to replay files, benchmark stores, or a database.
 
 ## Test-Specific Evaluator-Routing Model
 
@@ -305,13 +322,17 @@ The scoring engine maps numeric scores to risk levels:
 
 Strong Tests are selected with Light Tests in Golden Workflows. Unsupported tests do not receive synthetic scores.
 
+The Golden Workflow runner can select exactly one LT/ST or all four. A partial run is scored for its selected outputs, but it is not compared to the four-test synthetic reference distribution.
+
 ## Benchmark Architecture And Eligibility
 
 Implemented benchmark behavior:
 
-- Benchmarks are fixed illustrative synthetic distributions in `backend/registries/benchmark_registry.json`.
+- Benchmarks are typed as `synthetic_reference` or `external_reference` in `backend/registries/benchmark_registry.json`.
 - Eligible workflow scores are ranked against the matching synthetic distribution.
-- Benchmark output includes eligibility and caveat metadata.
+- Output fields use `synthetic_reference_median`, `synthetic_reference_top_quartile`, and `synthetic_percentile`; no synthetic statistic is labeled as industry data.
+- External references expose source URL, publication/version, applicability, and limitations. They provide methodology, regulatory context, or subcomponent evidence; they do not prove evaluator implementation.
+- Every workflow explicitly reports that a comparable empirical industry-peer distribution for the AIHC composite is unavailable.
 - KYC outlier diagnostics returns benchmark-ineligible output.
 - KYC does not fall back to the fraud benchmark.
 
@@ -338,7 +359,9 @@ Recommendations come from evaluator outputs when concrete evaluators run and fro
 
 ## Replay And Persistence Behavior
 
-Normal Golden Workflow runs write local JSON replay artifacts through `backend/evaluations/replay_store.py`.
+Demo Golden Workflow runs write local JSON replay artifacts through `backend/evaluations/replay_store.py`.
+
+Manual and uploaded evidence runs return `persisted: false` replay metadata and do not call the replay store. Raw borrower records and customer text are not added to benchmark distributions.
 
 Validation tests avoid canonical replay writes by monkeypatching `write_replay` to a temporary stub. Existing committed replay examples are not regenerated by the documentation-hardening task.
 
@@ -350,7 +373,7 @@ The running MVP has no production database connection. Benchmark state outside w
 
 Current persistence:
 
-- local JSON replay files for normal workflow runs;
+- local JSON replay files for demo workflow runs;
 - process-local in-memory benchmark store for `/benchmark`;
 - committed JSON registries for static contracts.
 
@@ -368,15 +391,16 @@ The repository does not define production infrastructure, managed secrets, datab
 
 Current trust boundaries:
 
-- No customer file upload endpoint.
+- Structured CSV/JSON upload is accepted only for the six Golden Workflows and processed ephemerally.
+- Raw PDF, PNG, and JPEG identity-document upload is not accepted; no OCR/extraction claim is made.
 - No authentication or authorization.
 - CORS is configured in the FastAPI app for frontend development access.
 - Synthetic evidence is safe for demo execution but is not customer evidence.
-- Local replay files may contain payloads used in workflow runs.
+- Local replay files contain demo payloads only under the current workflow boundary.
 - There is no production-grade encryption or key-management layer.
 - There is no production persistence layer.
 - The platform does not claim regulatory certification.
-- Future customer evidence ingestion must avoid storing raw borrower records in benchmark distributions.
+- Any future durable customer evidence ingestion must add authentication, authorization, encryption, retention controls, and explicit consent.
 - Future benchmark collection must separate aggregate observations from raw prompts, records, labels, and outputs.
 
 ## Error Handling
@@ -384,6 +408,8 @@ Current trust boundaries:
 Implemented error behavior:
 
 - Unknown workflow IDs raise API errors.
+- Unsupported file types, malformed/empty files, oversized files, and record-limit breaches return actionable 4xx errors without frontend stack traces.
+- Evidence validation reports Ready, Missing evidence, Invalid evidence, Insufficient sample, or Optional evidence unavailable per selected test.
 - Invalid taxonomy selections fail request validation or lookup.
 - Missing evaluator routes return standardized `not_implemented` outputs.
 - Missing or malformed evidence for routed tests returns `insufficient_evidence` without a score.
@@ -410,7 +436,7 @@ Not implemented:
 
 - Only 24 of 520 tests have concrete executable evaluators.
 - The 496 remaining tests are refined specifications but not executable diagnostics.
-- Customer upload is not implemented.
+- Structured manual, CSV, and JSON evidence is operational only for six Golden Workflows; raw documents remain unsupported.
 - Benchmarks are illustrative synthetic references only.
 - `/dashboard`, `/reports`, and `/benchmarks` use static demo data.
 - `/taxonomy` renders a large live registry response client-side.
@@ -422,7 +448,7 @@ Not implemented:
 
 Planned future components, not implemented today:
 
-- customer evidence upload and validation;
+- governed durable customer evidence storage and raw-document extraction;
 - persisted evaluation history in a production database;
 - empirical benchmark governance and anonymized cohort aggregation;
 - LLM-as-judge rubric evaluators;

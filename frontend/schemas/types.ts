@@ -1,6 +1,7 @@
 export type RiskLevel = "Low" | "Medium" | "High";
 export type ExecutionStatus = "completed" | "insufficient_evidence" | "not_implemented" | "failed";
 export type EvidenceStatus = "valid" | "missing" | "malformed" | "insufficient" | "not_applicable";
+export type EvidenceMode = "demo" | "manual" | "upload";
 
 export type TestOutput = {
   score: number | null;
@@ -48,19 +49,27 @@ export type EvaluationResponse = {
 
 export type WorkflowRun = {
   workflow: WorkflowDefinition;
+  evidence_mode: EvidenceMode;
+  validation: EvidenceValidation;
   evaluation: EvaluationResponse;
   benchmark: {
+    benchmark_id?: string | null;
+    benchmark_type?: string | null;
     metric: string | null;
     score: number | null;
     eligible?: boolean;
     reason?: string | null;
-    industry_median?: number;
-    top_quartile?: number;
-    percentile?: number;
+    synthetic_reference_median?: number | null;
+    synthetic_reference_top_quartile?: number | null;
+    synthetic_percentile?: number | null;
     distribution: number[];
     peer_grouping?: string[];
     provenance?: string;
     limitations?: string[];
+    normalization_method?: string | null;
+    external_reference_status?: string;
+    external_references?: BenchmarkReference[];
+    industry_peer_distribution?: {available: boolean; reason: string};
   };
   report: {
     title: string;
@@ -70,9 +79,89 @@ export type WorkflowRun = {
     recommended_next_steps: string[];
   };
   replay: {
-    replay_id: string;
-    path: string;
+    replay_id: string | null;
+    path: string | null;
+    persisted: boolean;
+    reason: string;
   };
+};
+
+export type BenchmarkReference = {
+  id: string;
+  name: string;
+  benchmark_type: string;
+  metric: string;
+  source: string;
+  source_url: string | null;
+  publication: string;
+  publication_date: string | null;
+  version: string;
+  applicability: string;
+  limitations: string[];
+  empirical: boolean;
+};
+
+export type EvidenceField = {
+  key: string;
+  label: string;
+  type: "text" | "textarea" | "number" | "binary" | "boolean" | "list" | "select" | "json";
+  description: string;
+  required_for: string[];
+  options: string[];
+  minimum: number | null;
+  maximum: number | null;
+};
+
+export type WorkflowTestContract = {
+  id: string;
+  name: string;
+  test_type: "light" | "strong";
+  purpose: string;
+  required_evidence: string[];
+};
+
+export type EvidenceContract = {
+  workflow_id: string;
+  workflow_name: string;
+  supported_formats: string[];
+  record_fields: EvidenceField[];
+  top_level_fields: EvidenceField[];
+  tests: WorkflowTestContract[];
+  example_payload: Record<string, unknown>;
+  limits: {
+    maximum_file_bytes: number;
+    maximum_records: number;
+    maximum_prompt_or_response_characters: number;
+  };
+  privacy: {processing: string; replay: string; benchmark: string};
+  raw_document_upload: {supported: boolean; status: string; reason: string};
+};
+
+export type EvidenceIssue = {
+  message: string;
+  field: string | null;
+  row: number | null;
+  severity: "error" | "warning";
+  fatal: boolean;
+};
+
+export type TestEvidenceStatus = {
+  test_id: string;
+  test_name: string;
+  test_type: "light" | "strong";
+  status: "Ready" | "Missing evidence" | "Invalid evidence" | "Insufficient sample" | "Optional evidence unavailable";
+  evidence_status: EvidenceStatus;
+  message: string;
+  required_evidence: string[];
+};
+
+export type EvidenceValidation = {
+  workflow_id: string;
+  can_run: boolean;
+  normalized_payload: Record<string, unknown>;
+  issues: EvidenceIssue[];
+  tests: TestEvidenceStatus[];
+  limits: EvidenceContract["limits"];
 };
 
 export type WorkflowDefinition = {
@@ -85,9 +174,11 @@ export type WorkflowDefinition = {
   orchestration_logic: string[];
   supported_uploads: string[];
   customer_upload_supported?: boolean;
+  supported_evidence_modes?: EvidenceMode[];
   execution_mode?: string;
   evidence_source?: string;
   replay_behavior?: string;
+  raw_document_upload_supported?: boolean;
   frontend_routing: string;
   report_template: string;
   implementation_status: string;

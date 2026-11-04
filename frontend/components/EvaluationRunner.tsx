@@ -13,7 +13,7 @@ export function EvaluationRunner({workflow, onResult}: {workflow: WorkflowDefini
     setRunning(true);
     setError(null);
     try {
-      onResult(await runWorkflow(workflow.id));
+      onResult(await runWorkflow(workflow.id, {evidence_mode: "demo", selected_test_ids: []}));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Workflow failed");
     } finally {

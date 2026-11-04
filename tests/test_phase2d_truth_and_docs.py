@@ -18,23 +18,36 @@ def test_kyc_workflow_has_no_fraud_benchmark_fallback():
     assert result["eligible"] is False
     assert result["benchmark_id"] is None
     assert result["distribution"] == []
-    assert "No benchmark mapping" in result["reason"]
+    assert "No AIHC synthetic reference mapping" in result["reason"]
+    assert result["industry_peer_distribution"]["available"] is False
+    assert result["external_references"]
 
 
 def test_benchmark_registry_discloses_synthetic_non_industry_provenance():
-    for benchmark in registry_items("benchmark_registry.json", "benchmarks"):
-        assert benchmark["benchmark_type"] == "illustrative_synthetic_reference"
-        assert "no empirical industry source" in benchmark["provenance"]
-        assert benchmark["sample_size"] == len(benchmark["synthetic_benchmark_distribution"])
+    benchmarks = registry_items("benchmark_registry.json", "benchmarks")
+    synthetic = [item for item in benchmarks if item["benchmark_type"] == "synthetic_reference"]
+    external = [item for item in benchmarks if item["benchmark_type"] == "external_reference"]
+    assert len(synthetic) == 4
+    assert len(external) == 7
+    for benchmark in synthetic:
+        assert benchmark["empirical"] is False
+        assert benchmark["distribution"]
         assert "Not an industry benchmark" in benchmark["limitations"]
+    for reference in external:
+        assert reference["source_url"].startswith("https://")
+        assert reference["applicability"]
+        assert reference["limitations"]
 
 
-def test_workflow_registry_discloses_synthetic_demo_mode_and_no_customer_upload():
+def test_workflow_registry_discloses_operational_structured_evidence_and_private_replays():
     for workflow in registry_items("workflow_registry.json", "workflows"):
-        assert workflow["execution_mode"] == "synthetic_demo"
-        assert workflow["customer_upload_supported"] is False
-        assert "synthetic_data.generators" in workflow["evidence_source"]
-        assert "write" in workflow["replay_behavior"]
+        assert workflow["execution_mode"] == "demo_manual_upload"
+        assert workflow["supported_evidence_modes"] == ["demo", "manual", "upload"]
+        assert workflow["customer_upload_supported"] is True
+        assert workflow["supported_uploads"] == ["csv", "json"]
+        assert "user-provided" in workflow["evidence_source"]
+        assert "not persisted" in workflow["replay_behavior"]
+        assert workflow["raw_document_upload_supported"] is False
 
 
 def test_all_golden_workflows_run_with_replay_writes_stubbed(monkeypatch, tmp_path):

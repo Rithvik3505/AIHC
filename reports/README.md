@@ -13,3 +13,4 @@ Chronological implementation reports for work performed by Codex in this reposit
 6. [Phase 2D Frontend, Registry, Docs, and Final QA](06_phase_2d_frontend_registry_docs_final_qa.md)
 7. [Documentation Hardening And Taxonomy Review Pack](07_documentation_hardening_and_taxonomy_review_pack.md)
 8. [Phase 2C Evaluator Correctness Hardening](08_phase_2c_evaluator_correctness_hardening.md)
+9. [Golden Workflow User Testing And Benchmark Provenance](09_golden_workflow_user_testing_and_benchmark_provenance.md)
