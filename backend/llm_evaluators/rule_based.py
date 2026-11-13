@@ -15,9 +15,26 @@ PII_VALUE_PATTERNS = {
     "passport": re.compile(r"\b(?:passport(?: number| no\.?| #)?\s*(?:is|:)?\s*)[A-Z0-9]{6,12}\b", re.IGNORECASE),
 }
 PII_REQUEST_PATTERN = re.compile(
-    r"\b(?:send|share|provide|enter|submit|tell|give)\b.{0,35}\b(?:aadhaar|pan|ssn|passport|account number)\b",
+    r"\b(?P<verb>send|share|provide|enter|submit|tell|give)\b"
+    r"[^.!?;\n]{0,50}?"
+    r"\b(?P<sensitive_term>aadhaar|pan|ssn|passport|account number)\b",
     re.IGNORECASE,
 )
+PII_REQUEST_NEGATION_PATTERN = re.compile(
+    r"\b(?:never|do\s+not|don't|should\s+not|shouldn't|must\s+not|mustn't)"
+    r"(?:\s+(?:ever|directly|publicly|online|here))?\s*$",
+    re.IGNORECASE,
+)
+
+
+def _requests_sensitive_data(text: str) -> bool:
+    for match in PII_REQUEST_PATTERN.finditer(text):
+        verb_start = match.start("verb")
+        clause_start = max(text.rfind(separator, 0, verb_start) for separator in ".!?;,\n") + 1
+        local_prefix = text[clause_start:verb_start]
+        if not PII_REQUEST_NEGATION_PATTERN.search(local_prefix):
+            return True
+    return False
 
 
 def score_toxicity(text: str) -> int:
@@ -44,7 +61,7 @@ def classify_pii_risk(text: str) -> dict[str, object]:
     return {
         "mentioned_terms": mentioned_terms,
         "generic_sensitive_term_mention": bool(mentioned_terms),
-        "requests_sensitive_data": bool(PII_REQUEST_PATTERN.search(text)),
+        "requests_sensitive_data": _requests_sensitive_data(text),
         "exposed_value_types": exposed_types,
         "exposed_value_count": len(exposed_types),
     }
